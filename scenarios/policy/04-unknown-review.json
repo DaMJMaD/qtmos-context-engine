@@ -1,0 +1,31 @@
+{
+  "id": "unknown_review",
+  "name": "Unknown context maps to review",
+  "state_snapshot": {
+    "rebuilt_at": "2026-04-08T18:03:00Z",
+    "active_surface": {
+      "surface_id": "x11:0x44",
+      "window_title": "Untitled",
+      "process_name": "chrome",
+      "trust_status": "unknown"
+    },
+    "active_web": {
+      "origin": "",
+      "title": "",
+      "trust_status": "unknown",
+      "binding_used_in_trust": false,
+      "mismatch_flags": [],
+      "drift_flags": []
+    }
+  },
+  "tags_snapshot": {
+    "trust_status": "unknown",
+    "binding_evidence": {
+      "link_confidence": "none"
+    }
+  },
+  "expected": {
+    "policy_action": "review",
+    "policy_rule": "unknown_weak"
+  }
+}

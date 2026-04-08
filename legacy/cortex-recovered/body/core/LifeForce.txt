@@ -1,0 +1,38 @@
+#Requires AutoHotkey v2
+#SingleInstance Force
+
+global imageDir := "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\image directory"
+global thybodyPath := imageDir . "\thybody.txt"
+global lastPulse := ""
+
+InitLifeForce() {
+    SafeWrite(thybodyPath, "❤️ Initializing vitals...")
+    SetTimer(PulseLoop, 1000)
+}
+
+PulseLoop() {
+    global thybodyPath, lastPulse
+    try {
+        current := FileRead(thybodyPath)
+        if (current != lastPulse) {
+            ToolTip("❤️ " current)
+            lastPulse := current
+        }
+    } catch Err {
+        ToolTip("❌ Cannot read vitals")
+    }
+}
+
+SafeWrite(filePath, textToWrite) {
+    tmpPath := filePath . ".tmp"
+    try {
+        FileDelete(tmpPath)
+        FileAppend(textToWrite, tmpPath)
+        FileMove(tmpPath, filePath, true)
+        FileAppend(FormatTime("[yyyy-MM-dd HH:mm:ss] ") "SafeWrite to " filePath " complete.`n", imageDir . "\write_log.txt")
+    } catch Err {
+        FileAppend(FormatTime("[yyyy-MM-dd HH:mm:ss] ") "❌ Failed SafeWrite to " filePath ": " Err.Message "`n", imageDir . "\write_log.txt")
+    }
+}
+
+InitLifeForce()

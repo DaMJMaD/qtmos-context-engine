@@ -1,0 +1,7 @@
+GetExecutablePathFromWinTitle(title) {
+    hwnd := WinExist("ahk_id " WinGetID("A"))
+    if !hwnd
+        return ""
+
+    return WinGetProcessPath("ahk_id " hwnd)
+}

@@ -1,0 +1,48 @@
+{
+  "topology": "BD-1",
+  "ts": "2026-04-08T12:00:00Z",
+  "source_state_ts": "2026-04-08T12:00:00Z",
+  "point_count": 108,
+  "active_indices": [
+    3,
+    4,
+    5,
+    18,
+    19
+  ],
+  "hot_index": 18,
+  "rails": {
+    "0rail": {
+      "color": "#eeeeff"
+    },
+    "-rail": {
+      "color": "#3399ff"
+    },
+    "+rail": {
+      "color": "#ff3366"
+    },
+    "pm_rail": {
+      "color": "#7fff7f"
+    }
+  },
+  "shells": [
+    {
+      "name": "inner_blue",
+      "extents": [0.65, 0.65, 0.65]
+    },
+    {
+      "name": "inner_white",
+      "extents": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "inner_red",
+      "extents": [1.25, 1.25, 1.25]
+    }
+  ],
+  "meta": {
+    "derived_from_event_ids": [
+      "evt_20260408_0001"
+    ],
+    "projector": "alpha.busydawg.bd1"
+  }
+}

@@ -1,0 +1,13 @@
+UpdateLiveMarkers() {
+    global imageDir, greenMarkerPositions
+
+    path := imageDir "\liveMarkers.txt"
+    if FileExist(path)
+        FileDelete(path)
+
+    FileAppend("timestamp=" A_Now "`n", path)
+
+    for name, coords in greenMarkerPositions {
+        FileAppend(name "=" coords.x "," coords.y "`n", path)
+    }
+}

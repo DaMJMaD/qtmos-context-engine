@@ -1,0 +1,43 @@
+global GdipToken := 0
+
+Gdip_Startup() {
+    global GdipToken
+    if GdipToken
+        return
+    hGdip := DllCall("LoadLibrary", "Str", "gdiplus", "Ptr")
+    si := Buffer(24, 0)
+    NumPut("UInt", 1, si)
+    DllCall("gdiplus\GdiplusStartup", "Ptr*", &GdipToken, "Ptr", si, "Ptr", 0)
+}
+
+Gdip_CreateBitmapFromHBITMAP(hBitmap) {
+    pBitmap := 0
+    DllCall("gdiplus\GdipCreateBitmapFromHBITMAP", "Ptr", hBitmap, "Ptr", 0, "Ptr*", &pBitmap)
+    return pBitmap
+}
+
+Gdip_SaveBitmapToFile(pBitmap, filePath) {
+    CLSID := Buffer(16)
+    NumPut("UInt", 0x557CF406, CLSID)
+    NumPut("UShort", 0x1A04, CLSID, 4)
+    NumPut("UShort", 0x11D3, CLSID, 6)
+    NumPut("UChar", 0x9A, CLSID, 8)
+    NumPut("UChar", 0x73, CLSID, 9)
+    NumPut("UChar", 0x00, CLSID, 10)
+    NumPut("UChar", 0x00, CLSID, 11)
+    NumPut("UChar", 0xF8, CLSID, 12)
+    NumPut("UChar", 0x1E, CLSID, 13)
+    NumPut("UChar", 0xF3, CLSID, 14)
+    NumPut("UChar", 0x2E, CLSID, 15)
+
+    result := DllCall("gdiplus\GdipSaveImageToFile", "Ptr", pBitmap, "WStr", filePath, "Ptr", CLSID, "Ptr", 0)
+    return result == 0
+}
+
+Gdip_DisposeImage(pBitmap) {
+    DllCall("gdiplus\GdipDisposeImage", "Ptr", pBitmap)
+}
+
+DeleteObject(hObject) {
+    return DllCall("DeleteObject", "Ptr", hObject)
+}

@@ -1,0 +1,67 @@
+StartFollowing() {
+    global hwndLeader, hwndFollowers
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if winList.Length < 2 {
+        MsgBox("❌ Not enough D2R windows found.")
+        return
+    }
+
+    hwndLeader := winList[1]
+    hwndFollowers := []
+    Loop winList.Length - 1
+        hwndFollowers.Push(winList[A_Index + 1])
+
+    HotIfWinActive("ahk_id " hwndLeader)
+
+    ; Holdable mouse buttons
+    Hotkey("~LButton", ForwardMouseHold.Bind("down"), "On")
+    Hotkey("~LButton up", ForwardMouseHold.Bind("up"), "On")
+    Hotkey("~RButton", ForwardMouseHold.Bind("rdown"), "On")
+    Hotkey("~RButton up", ForwardMouseHold.Bind("rup"), "On")
+
+    ; Mirror keys
+    for key in ["1", "2", "3", "4", "i", "a", "t", "c"]
+        Hotkey("~" key, ForwardKey.Bind(key), "On")
+    for key in ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"]
+        Hotkey("~" key, ForwardKey.Bind("{" key "}"), "On")
+
+    MsgBox("✅ Input mirroring ENABLED`nOnly while leader window is focused.", "Multibox", "Iconi")
+}
+
+StopFollowing() {
+    HotIfWinActive()  ; reset filter
+
+    Hotkey("LButton", ForwardMouseHold.Bind("down"), "Off")
+    Hotkey("LButton up", ForwardMouseHold.Bind("up"), "Off")
+    Hotkey("RButton", ForwardMouseHold.Bind("rdown"), "Off")
+    Hotkey("RButton up", ForwardMouseHold.Bind("rup"), "Off")
+
+    for key in ["1", "2", "3", "4", "i", "a", "t", "c"]
+        Hotkey("~" key, ForwardKey.Bind(key), "Off")
+    for key in ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"]
+        Hotkey("~" key, ForwardKey.Bind("{" key "}"), "Off")
+
+    MsgBox("⛔ Input mirroring DISABLED", "Multibox", "Iconi")
+}
+
+StackWindows() {
+    global hwndLeader, hwndFollowers
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if winList.Length < 2 {
+        MsgBox("❌ Not enough D2R windows to stack.")
+        return
+    }
+
+    hwndLeader := winList[1]
+    hwndFollowers := []
+    Loop winList.Length - 1
+        hwndFollowers.Push(winList[A_Index + 1])
+
+    pos := GetWindowRect(hwndLeader)
+    for hwnd in hwndFollowers
+        WinMove(pos.left, pos.top,,, "ahk_id " hwnd)
+
+    MsgBox("✅ Followers stacked under leader.", "Stacked", "Iconi")
+}

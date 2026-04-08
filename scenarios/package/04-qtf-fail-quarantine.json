@@ -1,0 +1,48 @@
+{
+  "expected": {
+    "hot_node": "bd_qtf_active",
+    "package_manager": "npm",
+    "package_qtf_requested": true,
+    "policy_action": "quarantine",
+    "policy_rule": "package_qtf_fail_quarantine",
+    "qtf_backend": "podman",
+    "qtf_success": false
+  },
+  "id": "qtf_fail_quarantine",
+  "name": "Failed QTF package run stays quarantined",
+  "package": {
+    "command": [
+      "npm",
+      "install",
+      "./broken-package.tgz"
+    ],
+    "lockfile_state": "present",
+    "manager": "npm",
+    "operation": "install",
+    "package_name": "broken-package",
+    "qtf_label": "pkg-npm-install-broken-package",
+    "qtf_requested": true,
+    "scripts_policy": "default",
+    "source_kind": "local",
+    "workspace_seed": "/tmp/broken-package"
+  },
+  "qtf": {
+    "backend": "podman",
+    "backend_requested": "auto",
+    "capture_ts": "2026-04-08T20:30:00Z",
+    "command": [
+      "npm",
+      "install",
+      "./broken-package.tgz"
+    ],
+    "command_text": "npm install ./broken-package.tgz",
+    "duration_ms": 880,
+    "exit_code": 1,
+    "image": "ubuntu:latest",
+    "label": "pkg-npm-install-broken-package",
+    "stderr": "postinstall failed",
+    "success": false,
+    "workspace_mode": "directory",
+    "workspace_seed": "/tmp/broken-package"
+  }
+}

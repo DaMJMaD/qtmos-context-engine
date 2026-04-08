@@ -1,0 +1,45 @@
+{
+  "id": "shifted_high_stress_review",
+  "name": "Shifted surface with high stress maps to review",
+  "state_snapshot": {
+    "rebuilt_at": "2026-04-08T18:02:00Z",
+    "active_surface": {
+      "surface_id": "x11:0x3",
+      "window_title": "GitHub Release Notes",
+      "process_name": "chrome",
+      "trust_status": "shifted"
+    },
+    "active_web": {
+      "origin": "https://odd.example",
+      "title": "GitHub Release Notes",
+      "trust_status": "shifted",
+      "binding_used_in_trust": false,
+      "mismatch_flags": [
+        "title_domain_mismatch"
+      ],
+      "drift_flags": [
+        "focus_surface_changed"
+      ]
+    },
+    "active_mindseye": {
+      "condition": "HIGH_STRESS",
+      "stage": "pulse",
+      "binding": {
+        "confidence": "medium",
+        "context": {
+          "user_state": "HIGH_STRESS"
+        }
+      }
+    }
+  },
+  "tags_snapshot": {
+    "trust_status": "shifted",
+    "binding_evidence": {
+      "link_confidence": "medium"
+    }
+  },
+  "expected": {
+    "policy_action": "review",
+    "policy_rule": "high_stress_mismatch"
+  }
+}

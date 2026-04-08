@@ -1,0 +1,33 @@
+{
+  "id": "suspicious_sensitive_deny",
+  "name": "Suspicious sensitive surface maps to deny",
+  "state_snapshot": {
+    "rebuilt_at": "2026-04-08T18:01:00Z",
+    "active_surface": {
+      "surface_id": "x11:0x9",
+      "window_title": "ChatGPT Login",
+      "process_name": "chrome",
+      "trust_status": "suspicious"
+    },
+    "active_web": {
+      "origin": "https://evil.example",
+      "title": "ChatGPT Login",
+      "trust_status": "suspicious",
+      "binding_used_in_trust": false,
+      "mismatch_flags": [
+        "sensitive_flow_low_trust"
+      ],
+      "drift_flags": []
+    }
+  },
+  "tags_snapshot": {
+    "trust_status": "suspicious",
+    "binding_evidence": {
+      "link_confidence": "medium"
+    }
+  },
+  "expected": {
+    "policy_action": "deny",
+    "policy_rule": "hard_deny"
+  }
+}

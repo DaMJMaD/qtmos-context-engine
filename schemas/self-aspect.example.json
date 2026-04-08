@@ -1,0 +1,50 @@
+{
+  "type": "self.aspect.observe",
+  "timestamp": "2026-04-08T18:30:00Z",
+  "observer": "qtmos-self-model",
+  "self": {
+    "asserted": {
+      "alias": "iam",
+      "value": "operator_active"
+    },
+    "stable": {
+      "alias": "thyself",
+      "value": "host:dave@puter"
+    },
+    "embodied": {
+      "alias": "thybody",
+      "surface_id": "x11:0x2c00004",
+      "surface_title": "Example Domain - Google Chrome",
+      "context_condition": "STABLE"
+    },
+    "relational": {
+      "alias": "weare",
+      "relations": [
+        {
+          "kind": "self_to_surface",
+          "target": "surface:x11:0x2c00004",
+          "confidence": 0.94
+        },
+        {
+          "kind": "self_to_web",
+          "target": "web:tab:41",
+          "confidence": 0.91
+        }
+      ]
+    },
+    "safe_anchors": {
+      "alias": "green_markers",
+      "values": [
+        "host:puter",
+        "origin:https://example.com"
+      ]
+    },
+    "liveness": {
+      "alias": "live_markers",
+      "values": [
+        "gnome_handoff",
+        "surface_web_binding_high"
+      ]
+    }
+  }
+}

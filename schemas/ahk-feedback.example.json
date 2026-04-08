@@ -1,0 +1,19 @@
+{
+  "channel": "ahk-feedback",
+  "payload": {
+    "context_condition": "STABLE",
+    "observer": "QTMoSPolicyHook",
+    "original_action": "review",
+    "original_hook_id": "hook_1234567890ab",
+    "original_rule": "shifted_mild",
+    "reason": "Host or identity drift detected",
+    "summary": "shifted: context changed and should be reviewed",
+    "surface_id": "x11:0x2c00004",
+    "surface_title": "Example Domain - Google Chrome",
+    "user_response": "decline",
+    "web_origin": "https://example.com"
+  },
+  "source": "QTMoSPolicyHook",
+  "subject": "review_response",
+  "ts": "2026-04-08T18:25:00Z"
+}

@@ -1,0 +1,59 @@
+CaptureLeaderRegion() {
+    global leaderScreenshotPath, GdipToken
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1) {
+        MsgBox("❌ No D2R windows found.")
+        return
+    }
+
+    hwnd := winList[1]  ; topmost = leader
+    WinActivate("ahk_id " hwnd)
+    Sleep(300)
+
+    pos := GetWindowRect(hwnd)
+    x := pos.left
+    y := pos.top
+    w := 1280
+    h := 800
+
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", w, "Int", h, "Ptr")
+    hOld := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap)
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", w, "Int", h,
+                     "Ptr", hDC, "Int", x, "Int", y, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hOld)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+    DllCall("ReleaseDC", "Ptr", 0, "Ptr", hDC)
+
+    if !GdipToken
+        Gdip_Startup()
+
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    DeleteObject(hBitmap)
+
+    if !pBitmap {
+        MsgBox("❌ Failed to create bitmap.")
+        return
+    }
+
+    if !Gdip_SaveBitmapToFile(pBitmap, leaderScreenshotPath) {
+        MsgBox("❌ Failed to save screenshot.")
+    } else {
+        MsgBox("✅ Screenshot saved:`n" leaderScreenshotPath)
+    }
+
+    Gdip_DisposeImage(pBitmap)
+}
+
+GetWindowRect(hwnd) {
+    buf := Buffer(16)
+    DllCall("GetWindowRect", "Ptr", hwnd, "Ptr", buf)
+    return {
+        left: NumGet(buf, 0, "Int"),
+        top: NumGet(buf, 4, "Int"),
+        right: NumGet(buf, 8, "Int"),
+        bottom: NumGet(buf, 12, "Int")
+    }
+}

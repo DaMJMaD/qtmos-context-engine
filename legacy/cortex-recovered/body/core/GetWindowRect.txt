@@ -1,0 +1,10 @@
+GetWindowRect(hwnd) {
+    buf := Buffer(16)
+    DllCall("GetWindowRect", "Ptr", hwnd, "Ptr", buf)
+    return {
+        left: NumGet(buf, 0, "Int"),
+        top: NumGet(buf, 4, "Int"),
+        right: NumGet(buf, 8, "Int"),
+        bottom: NumGet(buf, 12, "Int")
+    }
+}

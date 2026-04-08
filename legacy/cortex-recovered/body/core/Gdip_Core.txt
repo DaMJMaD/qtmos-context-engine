@@ -1,0 +1,80 @@
+; === Gdip_Core.txt ===
+; GDI+ graphics functions for image capture, save, pixel read, and cleanup
+
+; --- Init GDI+ ---
+global GdipToken := 0
+Gdip_Startup() {
+    global GdipToken
+    if GdipToken
+        return
+    hModule := DllCall("LoadLibrary", "Str", "gdiplus", "Ptr")
+    si := Buffer(24, 0)
+    NumPut("UInt", 1, si)
+    DllCall("gdiplus\GdiplusStartup", "Ptr*", &GdipToken, "Ptr", si, "Ptr", 0)
+}
+
+; --- Load image from file ---
+Gdip_CreateBitmapFromFile(filePath) {
+    pBitmap := 0
+    DllCall("gdiplus\GdipCreateBitmapFromFile", "WStr", filePath, "Ptr*", &pBitmap)
+    return pBitmap
+}
+
+; --- Load from HBITMAP ---
+Gdip_CreateBitmapFromHBITMAP(hBitmap) {
+    pBitmap := 0
+    DllCall("gdiplus\GdipCreateBitmapFromHBITMAP", "Ptr", hBitmap, "Ptr", 0, "Ptr*", &pBitmap)
+    return pBitmap
+}
+
+; --- Save image to file ---
+Gdip_SaveBitmapToFile(pBitmap, filePath) {
+    CLSID := Buffer(16)
+    NumPut("UInt", 0x557CF406, CLSID)
+    NumPut("UShort", 0x1A04, CLSID, 4)
+    NumPut("UShort", 0x11D3, CLSID, 6)
+    NumPut("UChar", 0x9A, CLSID, 8)
+    NumPut("UChar", 0x73, CLSID, 9)
+    NumPut("UChar", 0x00, CLSID, 10)
+    NumPut("UChar", 0x00, CLSID, 11)
+    NumPut("UChar", 0xF8, CLSID, 12)
+    NumPut("UChar", 0x1E, CLSID, 13)
+    NumPut("UChar", 0xF3, CLSID, 14)
+    NumPut("UChar", 0x2E, CLSID, 15)
+    return DllCall("gdiplus\GdipSaveImageToFile", "Ptr", pBitmap, "WStr", filePath, "Ptr", CLSID, "Ptr", 0) = 0
+}
+
+; --- Get dimensions ---
+Gdip_GetImageDimensions(pBitmap, &w, &h) {
+    w := Gdip_GetImageWidth(pBitmap)
+    h := Gdip_GetImageHeight(pBitmap)
+}
+
+Gdip_GetImageWidth(pBitmap) {
+    width := 0
+    DllCall("gdiplus\GdipGetImageWidth", "Ptr", pBitmap, "UInt*", &width)
+    return width
+}
+
+Gdip_GetImageHeight(pBitmap) {
+    height := 0
+    DllCall("gdiplus\GdipGetImageHeight", "Ptr", pBitmap, "UInt*", &height)
+    return height
+}
+
+; --- Pixel access ---
+Gdip_GetPixel(pBitmap, x, y) {
+    argb := 0
+    DllCall("gdiplus\GdipBitmapGetPixel", "Ptr", pBitmap, "Int", x, "Int", y, "UInt*", &argb)
+    return argb
+}
+
+; --- Dispose of bitmap ---
+Gdip_DisposeImage(pBitmap) {
+    DllCall("gdiplus\GdipDisposeImage", "Ptr", pBitmap)
+}
+
+; --- Cleanup ---
+DeleteObject(hObject) {
+    return DllCall("DeleteObject", "Ptr", hObject)
+}

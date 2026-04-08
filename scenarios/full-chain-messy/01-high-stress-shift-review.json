@@ -1,0 +1,51 @@
+{
+  "id": "high_stress_shifted_review",
+  "name": "High stress shifted review",
+  "surface": {
+    "observation": {
+      "bounds": {
+        "h": 982,
+        "w": 1920,
+        "x": 0,
+        "y": 32
+      },
+      "focused": true,
+      "pid": 7539,
+      "platform": "linux-x11",
+      "process_name": "chrome",
+      "process_path": "/opt/google/chrome/chrome",
+      "surface_id": "x11:0x2c00004",
+      "window_class": "google-chrome | Google-chrome",
+      "window_title": "GitHub Release Notes - Google Chrome",
+      "z_order": "active"
+    },
+    "trust_status": "trusted"
+  },
+  "web": {
+    "browser": "chrome",
+    "tab_id": 81,
+    "text_snippet": "GitHub Release Notes and changelog text on an unrelated domain",
+    "title": "GitHub Release Notes",
+    "url": "https://odd-example-security-check.net/releases",
+    "window_id": 9
+  },
+  "mindseye": {
+    "ts": "2026-04-08T18:10:00",
+    "payload": {
+      "raw_text": "Condition: HIGH_STRESS | Focus: scattered",
+      "hp": 88,
+      "mp": 45,
+      "condition": "HIGH_STRESS",
+      "stage": "pulse",
+      "observer": "AHK Context",
+      "focus_level": 30,
+      "stress_level": 91
+    }
+  },
+  "expected": {
+    "overall_trust": "shifted",
+    "web_trust": "shifted",
+    "policy_action": "review",
+    "policy_rule": "high_stress_mismatch"
+  }
+}

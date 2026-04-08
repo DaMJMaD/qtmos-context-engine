@@ -1,0 +1,53 @@
+;fu line
+StartFollowing() {
+    global hwndLeader, hwndFollowers
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 2) {
+        MsgBox("❌ Not enough D2R windows found.")
+        return
+    }
+
+    hwndLeader := winList[1]
+    hwndFollowers := []
+    ; Start from the second window (index 2) to skip the leader window
+    for index, hwnd in winList {
+        if (index > 1)  ; Skip the leader window (first in the list)
+            hwndFollowers.Push(hwnd)
+    }
+
+    HotIfWinActive("ahk_id " hwndLeader)
+
+    ; Holdable mouse buttons
+    Hotkey("~LButton", ForwardMouseHold.Bind("down"), "On")
+    Hotkey("~LButton up", ForwardMouseHold.Bind("up"), "On")
+    Hotkey("~RButton", ForwardMouseHold.Bind("rdown"), "On")
+    Hotkey("~RButton up", ForwardMouseHold.Bind("rup"), "On")
+
+    MsgBox("✅ Mouse mirroring ENABLED`nOnly while leader window is focused.", "Multibox", "Iconi")
+}
+
+StopFollowing() {
+    global hwndLeader, hwndFollowers
+
+    HotIfWinActive()  ; Reset filter to apply hotkeys to all windows.
+
+    ; Unbind all the mouse hotkeys to stop forwarding the mouse events to followers
+    Hotkey("~LButton", ForwardMouseHold.Bind("down"), "Off")
+    Hotkey("~LButton up", ForwardMouseHold.Bind("up"), "Off")
+    Hotkey("~RButton", ForwardMouseHold.Bind("rdown"), "Off")
+    Hotkey("~RButton up", ForwardMouseHold.Bind("rup"), "Off")
+
+    ; Manually stop forwarding any remaining mouse events to followers
+    for hwnd in hwndFollowers {
+        if (hwnd) {
+            PostMessage(0x202, 0, 0, , "ahk_id " hwnd) ; Release Left Button
+            PostMessage(0x205, 0, 0, , "ahk_id " hwnd) ; Release Right Button
+        }
+    }
+
+    ; Optionally, clear any mouse tracking or other behaviors to fully stop following
+    hwndFollowers := []  ; Clear the follower list
+
+    MsgBox("⛔ Mouse mirroring DISABLED and FOLLOWING STOPPED", "Multibox", "Iconi")
+}

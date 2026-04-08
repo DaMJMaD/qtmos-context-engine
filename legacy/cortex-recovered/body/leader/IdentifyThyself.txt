@@ -1,0 +1,54 @@
+IdentifyThyself() {
+    global MyName, imageDir
+    greenMarkerFile := imageDir . "\greenMarkers.txt"
+    centerX := 651
+    centerY := 428
+    nearestName := ""
+    nearestDist := 40  ; strict radius filter – must be very close to center
+
+    if !FileExist(greenMarkerFile) {
+        MsgBox("❌ greenMarkers.txt not found.")
+        return
+    }
+
+    lines := StrSplit(FileRead(greenMarkerFile), "`n")
+    for line in lines {
+        if line = ""
+            continue
+
+        parts := StrSplit(line, ":")
+        if parts.Length < 2
+            continue
+
+        name := Trim(parts[1])
+        coords := StrSplit(parts[2], ",")
+        if coords.Length < 2
+            continue
+
+        x := coords[1], y := coords[2]
+        dist := Sqrt((x - centerX)**2 + (y - centerY)**2)
+
+        if (dist < nearestDist) {
+            nearestDist := dist
+            nearestName := name
+        }
+    }
+
+    if (nearestName != "") {
+        MyName := nearestName
+        FileDelete(imageDir . "\weare.txt")
+        FileAppend(MyName, imageDir . "\weare.txt")
+        ToolTip("✅ You are: " MyName), Sleep(1000), ToolTip()
+    } else {
+        MsgBox("⚠️ No green marker near center. Maybe you're not visible in leader minimap?")
+    }
+}
+;Numpad2::
+;{
+;    MyName := GetMyNameFromPath()
+;    FileDelete(imageDir . "\weare.txt")
+;    FileAppend(MyName, imageDir . "\weare.txt")
+;    followMode := true
+;    ToolTip("✅ Follow mode ON: " MyName), Sleep(1000), ToolTip()
+;    SetTimer(FollowLeader, 200)
+;}

@@ -1,0 +1,99 @@
+#Requires AutoHotkey v2.0
+
+; === ParseVitalsFromImage.txt ===
+; Reads thyhealth.png or thymana.png and returns string (e.g. "1498 / 1498")
+; Uses glyph matching from imageDir\Language
+
+ParseVitalsFromImage(imagePath, imageDir) {
+    glyphDir := imageDir "\Language"
+    glyphs := Map()
+
+    ; Load glyph references
+    Loop Files, glyphDir "\*.png" {
+        name := RegExReplace(A_LoopFileName, "\.png$")
+        glyphs[name] := A_LoopFilePath
+    }
+
+    ; Load captured stat image
+    pBitmap := Gdip_CreateBitmapFromFile(imagePath)
+    if !pBitmap {
+        MsgBox "❌ Failed to load image: " imagePath
+        return "???"
+    }
+
+    Gdip_GetImageDimensions(pBitmap, &imgW, &imgH)
+    result := ""
+    x := 0
+
+    while (x < imgW) {
+        found := false
+        for key, glyphPath in glyphs {
+            if ImageSearchGlyph(pBitmap, x, imgH, glyphPath) {
+                result .= key
+                x += 10 ; move forward (adjust if needed)
+                found := true
+                break
+            }
+        }
+        if !found
+            x += 1
+    }
+
+    Gdip_DisposeImage(pBitmap)
+    return result
+}
+
+; === ImageSearchGlyph ===
+; Tries to match the glyph at offsetX in the target image
+ImageSearchGlyph(pBitmap, offsetX, imgH, glyphPath) {
+    pGlyph := Gdip_CreateBitmapFromFile(glyphPath)
+    if !pGlyph
+        return false
+
+    Gdip_GetImageDimensions(pGlyph, &gw, &gh)
+    if (offsetX + gw > imgH) {
+        Gdip_DisposeImage(pGlyph)
+        return false
+    }
+
+    match := Gdip_CompareSubBitmap(pBitmap, pGlyph, offsetX, 0, gw, gh)
+    Gdip_DisposeImage(pGlyph)
+    return match
+}
+
+; === Compare two images pixel by pixel
+Gdip_CompareSubBitmap(pMain, pGlyph, x, y, w, h) {
+    threshold := 20
+    for j in Range(0, h) {
+    for i in Range(0, w) {
+        c1 := Gdip_GetPixel(pMain, x + i, y + j)
+        c2 := Gdip_GetPixel(pGlyph, i, j)
+        if (ColorDistance(c1, c2) > threshold)
+            return false
+    }
+}
+
+    return true
+}
+
+
+ColorDistance(c1, c2) {
+    r1 := (c1 >> 16) & 0xFF
+    g1 := (c1 >> 8) & 0xFF
+    b1 := c1 & 0xFF
+
+    r2 := (c2 >> 16) & 0xFF
+    g2 := (c2 >> 8) & 0xFF
+    b2 := c2 & 0xFF
+
+    return Sqrt((r1 - r2)**2 + (g1 - g2)**2 + (b1 - b2)**2)
+}
+Range(start, stop) {
+    arr := []
+    step := (start <= stop) ? 1 : -1
+    Loop Abs(stop - start) + 1 {
+        arr.Push(start)
+        start += step
+    }
+    return arr
+}

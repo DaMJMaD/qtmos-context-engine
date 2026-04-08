@@ -1,0 +1,26 @@
+{
+  "expected": {
+    "hot_node": "bd_package_active",
+    "package_manager": "npm",
+    "package_qtf_requested": false,
+    "policy_action": "review",
+    "policy_rule": "package_scripts_host_review"
+  },
+  "id": "host_scripts_review",
+  "name": "Scripts enabled outside QTF trigger package review",
+  "package": {
+    "command": [
+      "npm",
+      "install",
+      "./host-package.tgz"
+    ],
+    "lockfile_state": "present",
+    "manager": "npm",
+    "operation": "install",
+    "package_name": "host-package",
+    "qtf_requested": false,
+    "scripts_policy": "default",
+    "source_kind": "local",
+    "workspace_seed": "/tmp/host-package"
+  }
+}

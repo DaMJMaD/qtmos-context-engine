@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=QTMoS Alpha Session Breadcrumb
+Comment=Emit a GNOME handoff breadcrumb into QTMoS Alpha at session start
+Exec=/bin/sh -lc 'exec "${QTMOS_ROOT:-$HOME/Desktop/QTMoS Alp-Beta}/hosts/qtmos-alpha-session-start.sh"'
+X-GNOME-Autostart-enabled=true
+NoDisplay=true

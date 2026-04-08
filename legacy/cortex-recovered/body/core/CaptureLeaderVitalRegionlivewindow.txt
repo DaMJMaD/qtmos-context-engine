@@ -1,0 +1,51 @@
+CaptureLeaderVitalRegionlivewindow() {
+    global GdipToken, imageDir
+    leaderScreenshotPath := imageDir . "\leader_Vitalsmap.png"
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1) {
+        MsgBox("❌ No D2R windows found.")
+        return
+    }
+
+    hwnd := winList[1]
+    WinActivate("ahk_id " hwnd)
+    Sleep(300)
+
+    pos := GetWindowRect(hwnd)
+    ; Offset within 1285x840 D2R window
+    x := pos.left + 216
+    y := pos.top + 672
+    w := 361 - 216
+    h := 694 - 672
+
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", w, "Int", h, "Ptr")
+    hOld := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap)
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", w, "Int", h,
+                     "Ptr", hDC, "Int", x, "Int", y, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hOld)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+    DllCall("ReleaseDC", "Ptr", 0, "Ptr", hDC)
+
+    if !GdipToken
+        Gdip_Startup()
+
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    DeleteObject(hBitmap)
+
+    if !pBitmap {
+        MsgBox("❌ Failed to create bitmap.")
+        return
+    }
+
+    if !Gdip_SaveBitmapToFile(pBitmap, leaderScreenshotPath) {
+        MsgBox("❌ Failed to save screenshot.")
+    } else {
+        ToolTip("✅ Screenshot + GreenMarkers"), Sleep(800), ToolTip()
+        ;SaveGreenMarkers()
+    }
+
+    Gdip_DisposeImage(pBitmap)
+}

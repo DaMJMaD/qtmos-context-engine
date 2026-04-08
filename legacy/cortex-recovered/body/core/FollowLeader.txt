@@ -1,0 +1,37 @@
+;fuck this line
+FollowLeader() {
+    global imageDir, followMode
+
+    if !followMode
+        return
+
+    MyName := Trim(FileRead(imageDir . "\weare.txt"))
+
+    markerMap := Map()
+    lines := StrSplit(FileRead(imageDir . "\greenMarkers.txt"), "`n")
+    for line in lines {
+        if RegExMatch(line, "^(.*?):(\d+),(\d+)$", &m)
+            markerMap[m[1]] := {x: m[2], y: m[3]}
+    }
+
+    if !markerMap.Has(MyName)
+        return
+
+    leaderName := Trim(FileRead(imageDir . "\iam.txt"))
+    if !markerMap.Has(leaderName)
+        return
+
+    me := markerMap[MyName]
+    leader := markerMap[leaderName]
+
+    dx := leader.x - me.x
+    dy := leader.y - me.y
+
+    if (Abs(dx) < 4 && Abs(dy) < 4)
+        return
+
+    clickX := 651 + dx
+    clickY := 428 + dy
+
+    Click(clickX, clickY)
+}

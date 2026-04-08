@@ -1,0 +1,30 @@
+; === GenerateThybodyFullVitals.txt ===
+; Purpose: Captures both health and mana regions and writes full vitals to thybody.txt
+
+GenerateThybodyFullVitals() {
+global imageDir
+
+```
+; Call region capture functions (external includes)
+CaptureHealthRegion()
+CaptureManaRegion()
+
+; Simulated parsed values — replace with OCR results later
+currentHP := 50
+maxHP := 75
+currentMP := 50
+maxMP := 75
+
+; Write full thybody.txt state
+FileDelete(imageDir . "\thybody.txt")
+FileAppend(
+    "HP: " currentHP " / " maxHP "`n"
+  . "MP: " currentMP " / " maxMP "`n"
+  . "Condition: STABLE`n"
+  . "Instinct: NONE",
+    imageDir . "\thybody.txt"
+)
+ToolTip("💓💧 ThyBody fully updated"), Sleep(800), ToolTip()
+```
+
+}

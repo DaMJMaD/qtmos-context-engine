@@ -1,0 +1,51 @@
+{
+  "expected": {
+    "binding_confidence": "high",
+    "binding_used_in_trust": false,
+    "drift_flags_include": [
+      "active_tab_changed"
+    ],
+    "overall_trust": "trusted",
+    "web_trust": "trusted"
+  },
+  "id": "github_container_subject",
+  "name": "GitHub repo tab switch treats OpenAI as subject, not host",
+  "surface": {
+    "observation": {
+      "bounds": {
+        "h": 982,
+        "w": 1920,
+        "x": 0,
+        "y": 32
+      },
+      "focused": true,
+      "pid": 7539,
+      "platform": "linux-x11",
+      "process_name": "chrome",
+      "process_path": "/opt/google/chrome/chrome",
+      "surface_id": "x11:0x2c00004",
+      "window_class": "google-chrome | Google-chrome",
+      "window_title": "Issues · openai/openai · GitHub - Google Chrome",
+      "z_order": "active"
+    },
+    "trust_status": "trusted"
+  },
+  "prelude_web": [
+    {
+      "browser": "chrome",
+      "tab_id": 41,
+      "text_snippet": "OpenAI repository on GitHub",
+      "title": "OpenAI · GitHub",
+      "url": "https://github.com/openai",
+      "window_id": 9
+    }
+  ],
+  "web": {
+    "browser": "chrome",
+    "tab_id": 42,
+    "text_snippet": "Issues and pull requests for the openai/openai repository on GitHub",
+    "title": "Issues · openai/openai",
+    "url": "https://github.com/openai/openai/issues",
+    "window_id": 9
+  }
+}

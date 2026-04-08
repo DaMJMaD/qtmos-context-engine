@@ -1,0 +1,35 @@
+CaptureLeaderScreenshot() {
+    global leaderScreenshot
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1) {
+        MsgBox("❌ No D2R windows found.")
+        return
+    }
+
+    hwnd := winList[1]
+    WinActivate("ahk_id " hwnd)
+    Sleep(300)
+    pos := GetWindowRect(hwnd)
+
+    x := pos.left, y := pos.top, w := 1285, h := 840
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", w, "Int", h, "Ptr")
+    obmp := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap, "Ptr")
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", w, "Int", h, "Ptr", hDC, "Int", x, "Int", y, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", obmp)
+    DllCall("ReleaseDC", "Ptr", hwnd, "Ptr", hDC)
+
+    Gdip_Startup()
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    Gdip_SaveBitmapToFile(pBitmap, leaderScreenshot)
+    Gdip_DisposeImage(pBitmap)
+    Gdip_Shutdown()
+
+    DllCall("DeleteObject", "Ptr", hBitmap)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+
+    ToolTip("👑 Leader screenshot saved.")
+    Sleep(1500)
+    ToolTip()
+}

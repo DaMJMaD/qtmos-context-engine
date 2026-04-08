@@ -1,0 +1,13 @@
+PassThroughKey(key) {
+    global hwndLeader, hwndFollowers
+    ; Only send to valid hwnds
+    if hwndLeader && WinExist("ahk_id " hwndLeader) {
+        ControlSend("", key, "ahk_id " hwndLeader)  ; Send key to the leader window
+    }
+
+    for hwnd in hwndFollowers {
+        if (hwnd && WinExist("ahk_id " hwnd)) {
+            ControlSend("", key, "ahk_id " hwnd)  ; Send key to each follower window
+        }
+    }
+}

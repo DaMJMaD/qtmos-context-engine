@@ -1,0 +1,56 @@
+{
+  "type": "mindseye.vitals",
+  "kind": "mindseye.vitals",
+  "subject": "mindseye.vitals",
+  "source": {
+    "host": "mindseye-sync",
+    "workspace": "/path/to/QTMoS-Alp-Beta",
+    "session": "shared-sync",
+    "observer": "AHK Context"
+  },
+  "payload": {
+    "mindseye_observation": {
+      "channel": "mindseye",
+      "source": "MindsEye",
+      "subject": "context",
+      "capture_ts": "2026-04-08T16:55:00",
+      "observer": "AHK Context",
+      "stage": "pulse",
+      "raw_text": "Condition: STABLE | Focus: calm",
+      "context_summary": "condition:STABLE | stage:pulse | intent:observe",
+      "condition": "STABLE",
+      "focus_level": 50,
+      "stress_level": 20,
+      "intent_signal": "observe",
+      "shared_root": "/path/to/qtmos-share",
+      "shared_channel_dir": "/path/to/qtmos-share/mindseye",
+      "shared_latest_path": "/path/to/qtmos-share/mindseye/latest.json"
+    },
+    "raw_shared_payload": {
+      "condition": "STABLE",
+      "focus_level": 50,
+      "intent_signal": "observe",
+      "raw_text": "Condition: STABLE | Focus: calm",
+      "stage": "pulse"
+    },
+    "mindseye_signature": {
+      "signature_version": "v1",
+      "content_hash": "sha256:example",
+      "stable_keys": [
+        "channel",
+        "source",
+        "subject",
+        "stage",
+        "raw_text",
+        "condition",
+        "focus_level",
+        "stress_level",
+        "intent_signal"
+      ]
+    }
+  },
+  "tags": [
+    "ahk_context_observed",
+    "human_context"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "evt_20260408_0001",
+  "ts": "2026-04-08T12:00:00Z",
+  "type": "host.capture",
+  "source": {
+    "host": "codex",
+    "workspace": "/path/to/QTMoS-Alp-Beta",
+    "session": "local-dev"
+  },
+  "payload": {
+    "kind": "selection",
+    "text": "Turn QTMoS into a shared bridge.",
+    "meta": {
+      "language": "en",
+      "selection_bytes": 39
+    }
+  },
+  "rails": {
+    "0rail": {
+      "raw_text": "Turn QTMoS into a shared bridge."
+    },
+    "-rail": {
+      "risk": "none",
+      "stale": false,
+      "conflict": false
+    },
+    "+rail": {
+      "meaning": "bridge_architecture_request",
+      "action_hint": "plan_and_scaffold"
+    },
+    "pm_rail": {
+      "fused_state": "valid_request",
+      "confidence": 0.96
+    }
+  },
+  "tags": [
+    "changed",
+    "operator_marked"
+  ]
+}

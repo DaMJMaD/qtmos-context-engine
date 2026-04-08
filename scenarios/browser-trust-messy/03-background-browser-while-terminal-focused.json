@@ -1,0 +1,41 @@
+{
+  "expected": {
+    "binding_confidence": "low",
+    "binding_used_in_trust": true,
+    "mismatch_flags_include": [
+      "binding_family_mismatch"
+    ],
+    "overall_trust": "shifted",
+    "web_trust": "shifted"
+  },
+  "id": "background_browser_while_terminal_focused",
+  "name": "Browser reports while terminal is the active desktop surface",
+  "surface": {
+    "observation": {
+      "bounds": {
+        "h": 1022,
+        "w": 1000,
+        "x": 940,
+        "y": 12
+      },
+      "focused": true,
+      "pid": 1172732,
+      "platform": "linux-x11",
+      "process_name": "gnome-terminal-server",
+      "process_path": "/usr/libexec/gnome-terminal-server",
+      "surface_id": "x11:0x540000a",
+      "window_class": "gnome-terminal-server | Gnome-terminal",
+      "window_title": "dave@Puter: ~/Desktop/QTMoS Alp-Beta",
+      "z_order": "active"
+    },
+    "trust_status": "trusted"
+  },
+  "web": {
+    "browser": "chrome",
+    "tab_id": 11,
+    "text_snippet": "GitHub is where people build software",
+    "title": "GitHub",
+    "url": "https://github.com",
+    "window_id": 3
+  }
+}

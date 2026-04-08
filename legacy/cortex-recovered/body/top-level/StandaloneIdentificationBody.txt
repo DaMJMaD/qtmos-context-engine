@@ -1,0 +1,28 @@
+; Standalone Identification Logic for Leader and Followers
+
+IdentifyLeaderAndFollowers() {
+    global hwndLeader, hwndFollowers
+    
+    ; Get list of all D2R windows
+    winList := WinGetList("ahk_exe d2r.exe")
+    
+    if winList.Length < 2 {
+        MsgBox("❌ Not enough D2R windows found.")
+        return
+    }
+
+    ; Set the leader as "Legions" based on your setup
+    hwndLeader := winList[1]  ; Leader is always the first window
+    hwndFollowers := []
+    
+    ; Populate followers based on your existing window order
+    Loop winList.Length - 1 {
+        hwndFollowers.Push(winList[A_Index + 1])
+    }
+    
+    ; Display the current leader and followers
+    MsgBox("Leader: Legions`nFollowers: " hwndFollowers.Length, "Leader and Followers Identified", "Iconi")
+}
+
+; You can call this function to identify leader and followers at any point
+IdentifyLeaderAndFollowers()

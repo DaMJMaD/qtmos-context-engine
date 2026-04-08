@@ -1,0 +1,77 @@
+{
+  "kind": "qtf.execution",
+  "payload": {
+    "qtf_execution": {
+      "artifacts": {
+        "created_files": [
+          "out.txt"
+        ],
+        "deleted_files": [],
+        "modified_files": []
+      },
+      "backend": "podman",
+      "backend_note": "fallback:ready; bwrap_unavailable:setting up uid map: Permission denied",
+      "backend_requested": "auto",
+      "capture_ts": "2026-04-08T19:10:00Z",
+      "command": [
+        "/bin/sh",
+        "-lc",
+        "echo hello > out.txt"
+      ],
+      "command_text": "/bin/sh -lc echo hello > out.txt",
+      "image": "ubuntu:latest",
+      "label": "local-offline-cage",
+      "manifest": {
+        "fake_home": "/home/qtf",
+        "network": "disabled",
+        "read_only_system": true,
+        "tmpfs": [
+          "/tmp",
+          "/var/tmp",
+          "/home/qtf"
+        ],
+        "workspace_mount": "/workspace"
+      },
+      "result": {
+        "duration_ms": 987,
+        "exit_code": 0,
+        "success": true,
+        "timed_out": false
+      },
+      "sandbox_kept": false,
+      "sandbox_root": "",
+      "stderr": "",
+      "stdout": "",
+      "workspace_mode": "directory",
+      "workspace_seed": "/tmp/example-project"
+    },
+    "qtf_signature": {
+      "content_hash": "sha256:example",
+      "signature_version": "v1",
+      "stable_keys": [
+        "label",
+        "backend",
+        "command_text",
+        "workspace_seed",
+        "workspace_mode",
+        "success",
+        "exit_code"
+      ]
+    }
+  },
+  "source": {
+    "host": "qtf-runner",
+    "observer": "qtf-podman",
+    "session": "local-cage",
+    "workspace": "/path/to/QTMoS-Alp-Beta"
+  },
+  "subject": "qtf.execution",
+  "tags": [
+    "qtf_execution",
+    "containment",
+    "offline_local",
+    "qtf_backend:podman",
+    "qtf_success"
+  ],
+  "type": "qtf.execution"
+}

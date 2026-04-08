@@ -1,0 +1,37 @@
+{
+  "channel": "ahk-policy",
+  "payload": {
+    "action": "allow",
+    "applied_at": "2026-04-08T17:45:16Z",
+    "binding_confidence": "high",
+    "binding_used_in_trust": true,
+    "hook_id": "hook_1234567890ab",
+    "match_signals": [
+      "process_family_match",
+      "title_overlap",
+      "timestamp_proximity",
+      "surface_focused"
+    ],
+    "context_condition": "STABLE",
+    "context_stage": "pulse",
+    "mismatch_signals": [],
+    "overall_status": "trusted",
+    "policy_rule": "trusted_clean",
+    "reason": "Clean host, stable user context, strong binding",
+    "severity": "none",
+    "summary": "trusted: high-confidence browser/surface alignment",
+    "surface_id": "x11:0x2c00004",
+    "surface_process_name": "chrome",
+    "surface_title": "Example Domain - Google Chrome",
+    "trust_reasons": [
+      "bound_surface_alignment"
+    ],
+    "ui_hint": "allow",
+    "web_origin": "https://example.com",
+    "web_title": "Example Domain",
+    "web_trust": "trusted"
+  },
+  "source": "QTMoSAlpha",
+  "subject": "policy_action",
+  "ts": "2026-04-08T17:45:18Z"
+}

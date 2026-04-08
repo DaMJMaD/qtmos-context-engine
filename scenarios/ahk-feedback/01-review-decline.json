@@ -1,0 +1,66 @@
+{
+  "id": "review-decline-feedback",
+  "name": "review decline becomes active AHK feedback",
+  "surface": {
+    "observation": {
+      "platform": "linux-x11",
+      "surface_id": "x11:0x2c00004",
+      "pid": 7539,
+      "process_name": "chrome",
+      "process_path": "/opt/google/chrome/chrome",
+      "window_class": "google-chrome | Google-chrome",
+      "window_title": "Example Domain - Google Chrome",
+      "bounds": {
+        "x": 0,
+        "y": 32,
+        "w": 1920,
+        "h": 982
+      },
+      "focused": true,
+      "visible_text": "",
+      "control_tree_hash": "",
+      "capture_ts": "2026-04-08T18:20:00Z"
+    }
+  },
+  "web": {
+    "browser": "chrome",
+    "url": "https://example.com",
+    "title": "Example Domain",
+    "text_snippet": "Example Domain for illustrative examples",
+    "tab_id": 41,
+    "window_id": 9,
+    "mutated": false,
+    "visible": true
+  },
+  "mindseye": {
+    "payload": {
+      "observer": "AHK Context",
+      "stage": "pulse",
+      "raw_text": "Condition: STABLE | Focus: calm",
+      "condition": "STABLE",
+      "focus_level": 50,
+      "stress_level": 20,
+      "intent_signal": "unknown"
+    }
+  },
+  "feedback": {
+    "payload": {
+      "observer": "QTMoSPolicyHook",
+      "original_hook_id": "hook_test123456",
+      "original_action": "review",
+      "original_rule": "shifted_mild",
+      "user_response": "decline",
+      "surface_id": "x11:0x2c00004",
+      "surface_title": "Example Domain - Google Chrome",
+      "web_origin": "https://example.com",
+      "reason": "Host or identity drift detected",
+      "context_condition": "STABLE",
+      "summary": "shifted: context changed and should be reviewed"
+    }
+  },
+  "expected": {
+    "user_response": "decline",
+    "original_action": "review",
+    "hot_node": "bd_feedback_active"
+  }
+}

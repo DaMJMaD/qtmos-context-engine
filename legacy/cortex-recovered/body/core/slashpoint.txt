@@ -1,0 +1,72 @@
+GlyphReader_FromSlashPoint(imagePath, glyphDir, slashX, slashY, digitsLeft, digitsRight) {
+    output := ""
+    if !FileExist(imagePath) {
+        MsgBox("❌ Image not found: " imagePath)
+        return ""
+    }
+
+    ; Load vitals image
+    pImage := Gdip_CreateBitmapFromFile(imagePath)
+    if !pImage {
+        MsgBox("❌ Failed to load image: " imagePath)
+        return ""
+    }
+
+    ; Read digits to the left of `/`
+    Loop digitsLeft {
+        x := slashX - (digitsLeft - A_Index + 1) * 12  ; assuming 12px per digit
+        y := slashY
+        digit := MatchGlyph(pImage, glyphDir, x, y)
+        output .= (digit != "") ? digit : "?"
+    }
+
+    output .= " / "
+
+    ; Read digits to the right of `/`
+    Loop digitsRight {
+        x := slashX + (A_Index) * 12
+        y := slashY
+        digit := MatchGlyph(pImage, glyphDir, x, y)
+        output .= (digit != "") ? digit : "?"
+    }
+
+    Gdip_DisposeImage(pImage)
+    return output
+}
+MatchGlyph(pImage, glyphDir, x, y) {
+    Loop 10 {
+        digit := A_Index - 1
+        glyphPath := glyphDir . digit . ".png"
+        if !FileExist(glyphPath)
+            continue
+        if ImageCompare(pImage, glyphPath, x, y)  ; You need to define ImageCompare()
+            return digit
+    }
+    return ""
+}
+; Load slashpoint
+cfg := Map()
+Loop Read, "slashpoint.txt" {
+    if RegExMatch(A_LoopReadLine, "i)(.*?)=(.*)", &m)
+        cfg[m[1]] := m[2]
+}
+
+hp := GlyphReader_FromSlashPoint(
+    imageDir . "\thyhealth.png",
+    imageDir . "\" . cfg["glyph_dir"],
+    cfg["x"],
+    cfg["y"],
+    4,  ; digits left of slash
+    4   ; digits right of slash
+)
+
+mp := GlyphReader_FromSlashPoint(
+    imageDir . "\thymana.png",
+    imageDir . "\" . cfg["glyph_dir"],
+    cfg["x"],
+    cfg["y"],
+    3,
+    3
+)
+
+FileAppend("HP/MP: " hp " | " mp "`n", imageDir . "\thybody.txt")

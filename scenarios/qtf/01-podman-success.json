@@ -1,0 +1,34 @@
+{
+  "expected": {
+    "created_files_include": [
+      "out.txt"
+    ],
+    "hot_node": "bd_qtf_active",
+    "qtf_backend": "podman",
+    "qtf_success": true
+  },
+  "id": "qtf_podman_success",
+  "name": "Podman-backed offline QTF execution surfaces as active containment context",
+  "qtf": {
+    "backend": "podman",
+    "backend_note": "scenario",
+    "backend_requested": "auto",
+    "capture_ts": "2026-04-08T19:10:00Z",
+    "command": [
+      "/bin/sh",
+      "-lc",
+      "echo hello > out.txt"
+    ],
+    "command_text": "/bin/sh -lc echo hello > out.txt",
+    "created_files": [
+      "out.txt"
+    ],
+    "duration_ms": 940,
+    "exit_code": 0,
+    "image": "ubuntu:latest",
+    "label": "local-offline-cage",
+    "success": true,
+    "workspace_mode": "directory",
+    "workspace_seed": "/tmp/example-project"
+  }
+}

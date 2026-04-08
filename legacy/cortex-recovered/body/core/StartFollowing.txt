@@ -1,0 +1,30 @@
+StartFollowing() {
+    global followMode, MyName, LeaderName, hwndFollowers
+
+    if (MyName = "") {
+        MsgBox("⚠️ You haven't set MyName yet. Did you run Numpad5?")
+        return
+    }
+
+    if (MyName = LeaderName) {
+        ToolTip("👑 Leader cannot follow itself"), Sleep(1000), ToolTip()
+        return
+    }
+
+    followMode := true
+    hwndFollowers := []
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    hwndLeader := winList[1]
+    Loop winList.Length - 1
+        hwndFollowers.Push(winList[A_Index + 1])
+
+    HotIfWinActive("ahk_id " hwndLeader)
+    Hotkey("~LButton", ForwardMouseHold, "On")
+    Hotkey("~LButton up", ForwardMouseRelease, "On")
+
+    for key in ["1","2","3","4","i","a","t","c","F1","F2","F3","F4","F5","F6","F7","F8"]
+        Hotkey(key, ForwardKey.Bind(key), "On")
+
+    ToolTip("🟢 Follower MODE ON"), Sleep(800), ToolTip()
+}

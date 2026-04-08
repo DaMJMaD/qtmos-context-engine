@@ -1,0 +1,6 @@
+QTMoS preserves the full line before interpretation.
+State is rebuilt from events, not guessed from summaries.
+BusyDawg governs meaning and projection, not raw truth.
+Linux is the primary runtime, with Windows and WSL as supported lanes.
+Drift should become visible, bounded, and recoverable.
+Hosts attach to shared truth instead of carrying private memory alone.

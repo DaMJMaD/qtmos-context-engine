@@ -1,0 +1,5 @@
+Numpad0::StackWindows()
+Numpad1::CaptureLeaderScreenshot()
+Numpad2::IdentifyThyself()
+Numpad3::ToolTip()
+Numpad9::ExitApp()

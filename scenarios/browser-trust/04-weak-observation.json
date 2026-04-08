@@ -1,0 +1,21 @@
+{
+  "expected": {
+    "binding_confidence": "none",
+    "binding_used_in_trust": false,
+    "mismatch_flags_include": [
+      "weak_web_observation"
+    ],
+    "overall_trust": "unknown",
+    "web_trust": "unknown"
+  },
+  "id": "weak_observation",
+  "name": "Weak browser observation stays neutral",
+  "web": {
+    "browser": "chrome",
+    "tab_id": 41,
+    "text_snippet": "",
+    "title": "",
+    "url": "",
+    "window_id": 9
+  }
+}

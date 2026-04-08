@@ -1,0 +1,33 @@
+#Include "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\script body files\Modular\StackWindows.txt"
+
+CallAndReturnCircuit() {
+    global hwndLeader, hwndFollowers
+
+    ; Call from Leader to Followers
+    for hwnd in hwndFollowers {
+        SendMessageToWindow(hwnd, "PING")
+        reply := WaitForReply(hwnd)
+
+        if reply != "PONG" {
+            MsgBox "❌ Follower at HWND " hwnd " failed to return signal."
+            FlagForManualCheck(hwnd)
+        } else {
+            ToolTip "✅ Follower " hwnd " returned signal correctly.", 0, 0
+        }
+    }
+
+    ; Leader checks self too (simulate 3-way loop)
+    if !SelfTest(hwndLeader) {
+        MsgBox "⚠️ Leader self-check failed. Realign manually."
+    }
+
+    return
+}
+AnchorFunction(value) {
+    checksum := TrustCheck(value)
+    if checksum passes {
+        routed := [//] (divide → isolate → match memory shape)
+        result := InsertToClubhouse(routed)
+    }
+    return result
+}

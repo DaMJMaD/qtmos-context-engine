@@ -1,0 +1,20 @@
+#Requires AutoHotkey v2
+
+imageDir := "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\image directory"
+thybodyPath := imageDir . "\thybody.txt"
+lastResult := ""
+
+SetTimer(WatchVitals, 1000)
+
+WatchVitals() {
+    global thybodyPath, lastResult
+    Try {
+        newResult := FileRead(thybodyPath)
+        if (newResult != lastResult) {
+            ToolTip("❤️ Vitals: " newResult, 10, 10)  ; << fixed position at top-left
+            lastResult := newResult
+        }
+    } Catch {
+        ToolTip("❌ Cannot read vitals", 10, 10)
+    }
+}

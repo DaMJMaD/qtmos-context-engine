@@ -1,0 +1,16 @@
+{
+  "expected": {
+    "compromise_suspected": true,
+    "hot_node": "bd_host_session_active",
+    "recovery_hint": "lockdown_ready",
+    "stage": "gnome-handoff"
+  },
+  "host_session": {
+    "compromise_suspected": true,
+    "recovery_hint": "lockdown_ready",
+    "stage": "gnome-handoff",
+    "suspicion_note": "Unexpected desktop state at session handoff"
+  },
+  "id": "gnome_handoff_suspected",
+  "name": "Compromised GNOME handoff breadcrumb becomes active host session focus"
+}

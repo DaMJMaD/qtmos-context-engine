@@ -1,0 +1,27 @@
+{
+  "id": "weak_observation_review",
+  "name": "Weak observation review",
+  "web": {
+    "browser": "chrome",
+    "tab_id": 77,
+    "text_snippet": "",
+    "title": "",
+    "url": "",
+    "window_id": 9
+  },
+  "mindseye": {
+    "ts": "2026-04-08T18:12:00",
+    "payload": {
+      "raw_text": "Condition: STABLE | Focus: low-signal",
+      "condition": "STABLE",
+      "stage": "pulse",
+      "observer": "AHK Context"
+    }
+  },
+  "expected": {
+    "overall_trust": "unknown",
+    "web_trust": "unknown",
+    "policy_action": "review",
+    "policy_rule": "unknown_weak"
+  }
+}

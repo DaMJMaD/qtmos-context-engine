@@ -1,0 +1,41 @@
+{
+  "id": "trusted_stable_surface_allow",
+  "name": "Trusted stable surface maps to allow",
+  "state_snapshot": {
+    "rebuilt_at": "2026-04-08T18:00:00Z",
+    "active_surface": {
+      "surface_id": "x11:0x2c00004",
+      "window_title": "Example Domain - Google Chrome",
+      "process_name": "chrome",
+      "trust_status": "trusted"
+    },
+    "active_web": {
+      "origin": "https://example.com",
+      "title": "Example Domain",
+      "trust_status": "trusted",
+      "binding_used_in_trust": true,
+      "mismatch_flags": [],
+      "drift_flags": []
+    },
+    "active_mindseye": {
+      "condition": "STABLE",
+      "stage": "pulse",
+      "binding": {
+        "confidence": "high",
+        "context": {
+          "user_state": "STABLE"
+        }
+      }
+    }
+  },
+  "tags_snapshot": {
+    "trust_status": "trusted",
+    "binding_evidence": {
+      "link_confidence": "high"
+    }
+  },
+  "expected": {
+    "policy_action": "allow",
+    "policy_rule": "trusted_clean"
+  }
+}

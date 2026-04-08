@@ -1,0 +1,7 @@
+;;;;;Keep Getmynamefrompath.txt for debugging, but don’t include it in scripts
+
+GetMyNameFromPath() {
+    path := WinGetProcessPath("A")
+    MsgBox("🧠 Detected path:`n" path)
+    ExitApp()
+}

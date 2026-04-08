@@ -1,0 +1,41 @@
+{
+  "expected": {
+    "binding_confidence": "high",
+    "binding_used_in_trust": false,
+    "mismatch_flags_include": [
+      "text_domain_mismatch"
+    ],
+    "overall_trust": "shifted",
+    "web_trust": "shifted"
+  },
+  "id": "browser_internal_new_tab",
+  "name": "Browser internal new-tab page with branded snippet",
+  "surface": {
+    "observation": {
+      "bounds": {
+        "h": 982,
+        "w": 1920,
+        "x": 0,
+        "y": 32
+      },
+      "focused": true,
+      "pid": 7539,
+      "platform": "linux-x11",
+      "process_name": "chrome",
+      "process_path": "/opt/google/chrome/chrome",
+      "surface_id": "x11:0x2c00004",
+      "window_class": "google-chrome | Google-chrome",
+      "window_title": "New Tab - Google Chrome",
+      "z_order": "active"
+    },
+    "trust_status": "trusted"
+  },
+  "web": {
+    "browser": "chrome",
+    "tab_id": 51,
+    "text_snippet": "Search Google or type a URL",
+    "title": "New Tab",
+    "url": "chrome://newtab/",
+    "window_id": 9
+  }
+}

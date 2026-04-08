@@ -1,0 +1,34 @@
+; PulseControlModule.ahk
+GetPulseState() {
+    static LastPulseTick := 0
+    static LastResult := ""
+
+Global imageDir := "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\Daves Play Buddies\image directory"
+file := imageDir . "\thybody.txt"
+
+    file := "thybody.txt"
+    if !FileExist(file)
+        return { state: "DEAD", value: "???", tick: 0 }
+
+    raw := FileRead(file)
+
+    ; Optional: check timestamp
+    if RegExMatch(raw, "^(.*) @tick (\d+)", &m) {
+        value := Trim(m[1])
+        tick := m[2]
+        age := A_TickCount - tick
+
+        if age > 2000
+            return { state: "STALE", value: value, tick: tick }
+
+        LastPulseTick := tick
+        LastResult := value
+        return { state: "OK", value: value, tick: tick }
+    }
+
+    ; fallback if no timestamp
+    if (raw = "")
+        return { state: "CORRUPTED", value: "???", tick: 0 }
+
+    return { state: "UNKNOWN", value: raw, tick: 0 }
+}

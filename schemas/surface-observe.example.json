@@ -1,0 +1,75 @@
+{
+  "id": "evt_20260408_surface_0001",
+  "ts": "2026-04-08T14:20:00Z",
+  "type": "surface.observe",
+  "source": {
+    "host": "ahk-bridge",
+    "workspace": "/path/to/QTMoS-Alp-Beta",
+    "session": "linux-local",
+    "observer": "window-spy-linux"
+  },
+  "payload": {
+    "surface_claim": {
+      "host_kind": "browser",
+      "label": "active_surface"
+    },
+    "surface_observation": {
+      "platform": "linux-x11",
+      "surface_id": "x11:0x3e00004",
+      "x11_id": "0x3e00004",
+      "pid": 1066243,
+      "process_name": "electron",
+      "process_path": "/opt/codex-app/electron",
+      "window_class": "codex | Codex",
+      "window_title": "Codex",
+      "bounds": {
+        "x": 0,
+        "y": 69,
+        "w": 1920,
+        "h": 945
+      },
+      "focused": true,
+      "z_order": "active",
+      "visible_text": "",
+      "control_tree_hash": "",
+      "capture_ts": "2026-04-08T14:20:00Z"
+    },
+    "surface_signature": {
+      "signature_version": "v1",
+      "surface_hash": "sha256:example-surface-hash",
+      "stable_keys": [
+        "platform",
+        "surface_id",
+        "process_path",
+        "window_class"
+      ]
+    },
+    "trust_state": {
+      "status": "verified",
+      "drift_flags": [],
+      "mismatch_flags": []
+    }
+  },
+  "rails": {
+    "0rail": {
+      "raw_surface": "x11 active window observation"
+    },
+    "-rail": {
+      "risk": "none",
+      "stale": false,
+      "conflict": false
+    },
+    "+rail": {
+      "meaning": "stable_active_surface",
+      "action_hint": "allow_context_binding"
+    },
+    "pm_rail": {
+      "fused_state": "surface_verified",
+      "confidence": 0.98
+    }
+  },
+  "tags": [
+    "surface_observed",
+    "host_identity"
+  ]
+}

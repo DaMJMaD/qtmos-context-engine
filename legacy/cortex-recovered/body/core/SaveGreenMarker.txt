@@ -1,0 +1,23 @@
+SaveGreenMarkers() {
+    global greenMarkers, imageDir
+
+    ; Hardcoded markers until detection is implemented
+    greenMarkers := Map()
+    greenMarkers["Bleeps"] := {x: 641, y: 312}
+    greenMarkers["Qholda"] := {x: 597, y: 319}
+    greenMarkers["Jinx-Woot"] := {x: 580, y: 305}
+    greenMarkers["HralDrek"] := {x: 610, y: 290}
+
+    ; Ensure directory exists
+    if !DirExist(imageDir)
+        DirCreate(imageDir)
+
+    greenMarkerFile := imageDir . "\greenMarkers.txt"
+    if FileExist(greenMarkerFile)
+        FileDelete(greenMarkerFile)
+
+    for name, pos in greenMarkers {
+        if IsObject(pos) && IsNumber(pos.x) && IsNumber(pos.y)
+            FileAppend(name ":" pos.x "," pos.y "`n", greenMarkerFile)
+    }
+}

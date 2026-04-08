@@ -1,0 +1,9 @@
+StopFollowing() {
+    Hotkey("~LButton", "Off")
+    Hotkey("~LButton up", "Off")
+
+    for key in ["1","2","3","4","i","a","t","c","F1","F2","F3","F4","F5","F6","F7","F8"]
+        Hotkey(key, "Off")
+
+    global hwndFollowers := []
+}

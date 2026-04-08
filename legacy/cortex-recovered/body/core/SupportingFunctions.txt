@@ -1,0 +1,23 @@
+ForwardMouseHold(*) {
+    global hwndFollowers
+    MouseGetPos(&x, &y)
+    for hwnd in hwndFollowers {
+        if hwnd && WinExist("ahk_id " hwnd) {
+            pt := ScreenToClient(hwnd, x, y)
+            lParam := (pt.y << 16) | (pt.x & 0xFFFF)
+            PostMessage(0x201, 0, lParam, , "ahk_id " hwnd) ; WM_LBUTTONDOWN
+        }
+    }
+}
+
+ForwardMouseRelease(*) {
+    global hwndFollowers
+    MouseGetPos(&x, &y)
+    for hwnd in hwndFollowers {
+        if hwnd && WinExist("ahk_id " hwnd) {
+            pt := ScreenToClient(hwnd, x, y)
+            lParam := (pt.y << 16) | (pt.x & 0xFFFF)
+            PostMessage(0x202, 0, lParam, , "ahk_id " hwnd) ; WM_LBUTTONUP
+        }
+    }
+}

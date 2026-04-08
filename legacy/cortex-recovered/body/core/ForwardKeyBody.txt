@@ -1,0 +1,12 @@
+ForwardKey(key, *) {
+    global hwndFollowers
+    for hwnd in hwndFollowers
+        ControlSend("{Blind}{" key " down}", , "ahk_id " hwnd)
+    SetTimer(() => ReleaseKey(key), -30)
+}
+
+ReleaseKey(key) {
+    global hwndFollowers
+    for hwnd in hwndFollowers
+        ControlSend("{Blind}{" key " up}", , "ahk_id " hwnd)
+}

@@ -1,0 +1,52 @@
+CaptureHealthRegion() {
+    global GdipToken, imageDir
+    healthImagePath := imageDir . "\thyhealth.png"
+
+    ; Get D2R window
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1) {
+        MsgBox("❌ No D2R windows found.")
+        return
+    }
+
+    hwnd := winList[1]
+    WinActivate("ahk_id " hwnd)
+    Sleep(200)
+
+    pos := GetWindowRect(hwnd)
+    ; Offset within 1285x840 D2R window
+    x := pos.left + 215
+    y := pos.top + 671
+    w := 362 - 215
+    h := 697 - 671
+
+    ; Capture region
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", w, "Int", h, "Ptr")
+    hOld := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap)
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", w, "Int", h,
+                     "Ptr", hDC, "Int", x, "Int", y, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hOld)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+    DllCall("ReleaseDC", "Ptr", 0, "Ptr", hDC)
+
+    if !GdipToken
+        Gdip_Startup()
+
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    DeleteObject(hBitmap)
+
+    if !pBitmap {
+        MsgBox("❌ Failed to create health bitmap.")
+        return
+    }
+
+    if !Gdip_SaveBitmapToFile(pBitmap, healthImagePath) {
+        MsgBox("❌ Failed to save thyhealth.png")
+    } else {
+        ToolTip("✅ ThyHealth captured"), Sleep(800), ToolTip()
+    }
+
+    Gdip_DisposeImage(pBitmap)
+}

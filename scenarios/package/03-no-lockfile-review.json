@@ -1,0 +1,50 @@
+{
+  "expected": {
+    "hot_node": "bd_qtf_active",
+    "package_manager": "npm",
+    "package_qtf_requested": true,
+    "policy_action": "review",
+    "policy_rule": "package_no_lockfile_review",
+    "qtf_backend": "podman",
+    "qtf_success": true
+  },
+  "id": "no_lockfile_review",
+  "name": "Missing lockfile keeps package flow in review",
+  "package": {
+    "command": [
+      "npm",
+      "install",
+      "./local-package.tgz"
+    ],
+    "lockfile_state": "missing",
+    "manager": "npm",
+    "operation": "install",
+    "package_name": "local-package",
+    "qtf_label": "pkg-npm-install-local-package-missing-lock",
+    "qtf_requested": true,
+    "scripts_policy": "default",
+    "source_kind": "local",
+    "workspace_seed": "/tmp/local-package"
+  },
+  "qtf": {
+    "backend": "podman",
+    "backend_requested": "auto",
+    "capture_ts": "2026-04-08T20:25:00Z",
+    "command": [
+      "npm",
+      "install",
+      "./local-package.tgz"
+    ],
+    "command_text": "npm install ./local-package.tgz",
+    "created_files": [
+      "node_modules/local-package/index.js"
+    ],
+    "duration_ms": 1130,
+    "exit_code": 0,
+    "image": "ubuntu:latest",
+    "label": "pkg-npm-install-local-package-missing-lock",
+    "success": true,
+    "workspace_mode": "directory",
+    "workspace_seed": "/tmp/local-package"
+  }
+}

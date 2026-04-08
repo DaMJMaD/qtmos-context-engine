@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QTMoS Trust Console</title>
+  <style>
+    :root {
+      --bg-0: #07100e;
+      --bg-1: #0b1714;
+      --bg-2: #12211c;
+      --panel: rgba(18, 31, 27, 0.88);
+      --panel-strong: rgba(22, 37, 32, 0.96);
+      --panel-alt: rgba(35, 55, 48, 0.6);
+      --text: #edf6f1;
+      --muted: #95ab9f;
+      --line: rgba(133, 169, 151, 0.18);
+      --accent: #a8d37f;
+      --accent-2: #74e0b5;
+      --trusted: #42c98a;
+      --shifted: #f3b44b;
+      --suspicious: #ef6d6d;
+      --unknown: #758681;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+      --mono: "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", monospace;
+      --sans: "IBM Plex Sans", "DejaVu Sans", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(116, 224, 181, 0.14), transparent 28%),
+        radial-gradient(circle at 88% 6%, rgba(168, 211, 127, 0.16), transparent 24%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-0) 48%, #050b09 100%);
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.75), transparent 88%);
+    }
+
+    .wrap {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .micro-pill,
+    .status-pill,
+    .stat-chip,
+    .signal {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .micro-pill {
+      padding: 7px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 0 rgba(116, 224, 181, 0.6);
+      animation: pulse 2s infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(116, 224, 181, 0.55); }
+      70% { box-shadow: 0 0 0 12px rgba(116, 224, 181, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(116, 224, 181, 0); }
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(168, 211, 127, 0.3);
+      background: linear-gradient(180deg, rgba(168, 211, 127, 0.18), rgba(116, 224, 181, 0.06));
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 15px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    button:hover {
+      border-color: rgba(168, 211, 127, 0.62);
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(168, 211, 127, 0.24), rgba(116, 224, 181, 0.1));
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 22px;
+      border-radius: 28px;
+      border: 1px solid rgba(168, 211, 127, 0.14);
+      background:
+        linear-gradient(135deg, rgba(168, 211, 127, 0.08), rgba(116, 224, 181, 0.06) 28%, rgba(255, 255, 255, 0.015) 72%),
+        var(--panel-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -60% 36%;
+      height: 260px;
+      background: radial-gradient(circle, rgba(116, 224, 181, 0.2), transparent 70%);
+      pointer-events: none;
+      filter: blur(12px);
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 8px;
+      max-width: 880px;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      line-height: 0.94;
+      letter-spacing: 0.02em;
+    }
+
+    .summary {
+      max-width: 920px;
+      color: var(--text);
+      font-size: clamp(1rem, 1.5vw, 1.16rem);
+      line-height: 1.45;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: #04120c;
+      background: var(--unknown);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(4, 18, 12, 0.55);
+    }
+
+    .status-pill.trusted { background: var(--trusted); }
+    .status-pill.shifted { background: var(--shifted); }
+    .status-pill.suspicious { background: var(--suspicious); color: #fff6f6; }
+    .status-pill.suspicious::before { background: rgba(255,255,255,0.7); }
+    .status-pill.unknown { background: var(--unknown); color: #edf6f1; }
+    .status-pill.unknown::before { background: rgba(255,255,255,0.7); }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .overview-card {
+      padding: 14px 15px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.025);
+      min-height: 88px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .overview-card .label {
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .overview-card .value {
+      font-size: 1.08rem;
+      line-height: 1.22;
+      overflow-wrap: anywhere;
+    }
+
+    .overview-card .subvalue {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      opacity: 0;
+      background: var(--unknown);
+      transition: opacity 120ms ease;
+    }
+
+    .card[data-tone]::before {
+      opacity: 1;
+    }
+
+    .card[data-tone="trusted"]::before { background: var(--trusted); }
+    .card[data-tone="shifted"]::before { background: var(--shifted); }
+    .card[data-tone="suspicious"]::before { background: var(--suspicious); }
+    .card[data-tone="unknown"]::before { background: var(--unknown); }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .card-badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+    }
+
+    .primary {
+      margin: 0;
+      font-size: clamp(1.08rem, 1.4vw, 1.35rem);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .secondary {
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .mono {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .callout {
+      padding: 12px 13px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.025);
+      font-size: 0.95rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .kv {
+      display: grid;
+      gap: 10px;
+    }
+
+    .kv-item {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .kv-item:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .kv-key {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .kv-value {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.7rem;
+    }
+
+    .metric .value {
+      font-size: 1rem;
+      overflow-wrap: anywhere;
+    }
+
+    .signal-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .signal {
+      padding: 7px 12px;
+      background: var(--panel-alt);
+      color: var(--text);
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 1080px) {
+      .overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8 {
+        grid-column: span 6;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 18px 14px 32px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .overview {
+        grid-template-columns: 1fr;
+      }
+
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8,
+      .span-12 {
+        grid-column: span 1;
+      }
+
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+
+      .kv-item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="micro-pill">Alpha Runtime</div>
+        <div class="micro-pill"><span class="live-dot"></span>Local Loop Active</div>
+      </div>
+      <div class="toolbar-right">
+        <div class="micro-pill" id="liveUpdateStatus">Polling /alpha/report</div>
+        <button id="refreshBtn" type="button">Refresh Now</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="kicker">Local Anti-Drift Operational Context Engine</div>
+          <h1>QTMoS Trust Console</h1>
+          <div id="summary" class="summary">Loading runtime state...</div>
+        </div>
+        <div class="hero-badges">
+          <div id="statusPill" class="status-pill unknown">UNKNOWN</div>
+          <div id="policyPill" class="status-pill unknown">POLICY UNKNOWN</div>
+        </div>
+      </div>
+
+      <div class="overview">
+        <div class="overview-card">
+          <div class="label">Events</div>
+          <div class="value" id="eventCount">0</div>
+          <div class="subvalue" id="railState">rail:n/a</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Last Update</div>
+          <div class="value" id="rebuiltAt">n/a</div>
+          <div class="subvalue" id="runtimeFiles">state:n/a</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Package Flow</div>
+          <div class="value" id="packageHero">none</div>
+          <div class="subvalue" id="qtfHero">qtf:none</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Host Session</div>
+          <div class="value" id="hostHero">none</div>
+          <div class="subvalue" id="hostHeroMeta">session:n/a</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Current Mood</div>
+          <div class="value" id="contextHero">none</div>
+          <div class="subvalue" id="feedbackHero">feedback:none</div>
+        </div>
+      </div>
+
+      <div class="hero-tags">
+        <span class="stat-chip">observe</span>
+        <span class="stat-chip">bind</span>
+        <span class="stat-chip">score</span>
+        <span class="stat-chip">explain</span>
+        <span class="stat-chip">policy</span>
+        <span class="stat-chip">containment</span>
+      </div>
+    </section>
+
+    <section class="board">
+      <article id="statusCard" class="card span-3" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Trust Status</h2>
+          <div id="statusBadge" class="card-badge">unknown</div>
+        </div>
+        <p id="overallStatus" class="primary">unknown</p>
+        <div class="callout" id="statusCallout">Waiting for state.</div>
+        <div class="mono" id="pathsInfo">state:n/a</div>
+      </article>
+
+      <article id="surfaceCard" class="card span-3" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Surface</h2>
+          <div id="surfaceBadge" class="card-badge">inactive</div>
+        </div>
+        <p id="surfaceTitle" class="primary">none</p>
+        <div id="surfaceMeta" class="secondary">n/a</div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Process</span><span class="kv-value" id="surfaceProcess">n/a</span></div>
+          <div class="kv-item"><span class="kv-key">Surface ID</span><span class="kv-value mono" id="surfaceId">n/a</span></div>
+        </div>
+      </article>
+
+      <article id="webCard" class="card span-3" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Web Context</h2>
+          <div id="webBadge" class="card-badge">web:unknown</div>
+        </div>
+        <p id="webTitle" class="primary">none</p>
+        <div id="webMeta" class="secondary">n/a</div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Origin</span><span class="kv-value mono" id="webOrigin">n/a</span></div>
+          <div class="kv-item"><span class="kv-key">Trust</span><span class="kv-value" id="webTrust">unknown</span></div>
+        </div>
+      </article>
+
+      <article id="bindingCard" class="card span-3" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Binding</h2>
+          <div id="bindingBadge" class="card-badge">none</div>
+        </div>
+        <p id="bindingSummary" class="primary">unbound</p>
+        <div class="metric-row">
+          <div class="metric">
+            <div class="label">Used In Trust</div>
+            <div class="value" id="bindingUsed">no</div>
+          </div>
+          <div class="metric">
+            <div class="label">Match Count</div>
+            <div class="value" id="bindingMatchCount">0</div>
+          </div>
+          <div class="metric">
+            <div class="label">Mismatch Count</div>
+            <div class="value" id="bindingMismatchCount">0</div>
+          </div>
+        </div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Target</span><span class="kv-value" id="bindingTarget">unbound</span></div>
+        </div>
+      </article>
+
+      <article id="contextCard" class="card span-4" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">AHK Context</h2>
+          <div id="contextBadge" class="card-badge">context</div>
+        </div>
+        <p id="mindseyeTitle" class="primary">none</p>
+        <div id="mindseyeMeta" class="secondary">n/a</div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Bind</span><span class="kv-value" id="mindseyeBind">none</span></div>
+          <div class="kv-item"><span class="kv-key">Target</span><span class="kv-value" id="mindseyeTarget">unbound</span></div>
+          <div class="kv-item"><span class="kv-key">Intent</span><span class="kv-value" id="mindseyeIntent">n/a</span></div>
+        </div>
+      </article>
+
+      <article id="policyCard" class="card span-4" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Policy</h2>
+          <div id="policyBadge" class="card-badge">warn</div>
+        </div>
+        <p id="policyAction" class="primary">WARN</p>
+        <div class="callout" id="policyReason">n/a</div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Rule</span><span class="kv-value" id="policyRule">default_fallback</span></div>
+          <div class="kv-item"><span class="kv-key">Applied</span><span class="kv-value mono" id="policyApplied">n/a</span></div>
+        </div>
+      </article>
+
+      <article id="feedbackCard" class="card span-4" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">AHK Feedback</h2>
+          <div id="feedbackBadge" class="card-badge">idle</div>
+        </div>
+        <p id="feedbackAction" class="primary">none</p>
+        <div id="feedbackReason" class="secondary">n/a</div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Policy</span><span class="kv-value" id="feedbackPolicyAction">n/a</span></div>
+          <div class="kv-item"><span class="kv-key">Target</span><span class="kv-value" id="feedbackTarget">n/a</span></div>
+        </div>
+      </article>
+
+      <article id="packageCard" class="card span-6" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Package + QTF</h2>
+          <div id="packageBadge" class="card-badge">inactive</div>
+        </div>
+        <p id="packageTitle" class="primary">none</p>
+        <div id="packageMeta" class="secondary">No active package flow.</div>
+        <div class="metric-row">
+          <div class="metric">
+            <div class="label">Source</div>
+            <div class="value" id="packageSource">n/a</div>
+          </div>
+          <div class="metric">
+            <div class="label">Lockfile</div>
+            <div class="value" id="packageLockfile">n/a</div>
+          </div>
+          <div class="metric">
+            <div class="label">Scripts</div>
+            <div class="value" id="packageScripts">n/a</div>
+          </div>
+        </div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">QTF</span><span class="kv-value" id="qtfStatus">none</span></div>
+          <div class="kv-item"><span class="kv-key">Command</span><span class="kv-value mono" id="qtfCommand">n/a</span></div>
+          <div class="kv-item"><span class="kv-key">Changes</span><span class="kv-value" id="qtfChanges">+0 ~0 -0</span></div>
+        </div>
+      </article>
+
+      <article id="hostCard" class="card span-6" data-tone="unknown">
+        <div class="card-top">
+          <h2 class="eyebrow">Host Session</h2>
+          <div id="hostBadge" class="card-badge">session</div>
+        </div>
+        <p id="hostTitle" class="primary">none</p>
+        <div id="hostMeta" class="secondary">n/a</div>
+        <div class="kv">
+          <div class="kv-item"><span class="kv-key">Boot</span><span class="kv-value mono" id="hostBoot">n/a</span></div>
+          <div class="kv-item"><span class="kv-key">Recovery</span><span class="kv-value" id="hostRecovery">n/a</span></div>
+          <div class="kv-item"><span class="kv-key">Suspicion</span><span class="kv-value" id="hostSuspicion">none</span></div>
+        </div>
+      </article>
+
+      <article class="card span-4">
+        <div class="card-top">
+          <h2 class="eyebrow">Trust Reasons</h2>
+        </div>
+        <div id="reasons" class="signal-list"></div>
+      </article>
+
+      <article class="card span-4">
+        <div class="card-top">
+          <h2 class="eyebrow">Match Signals</h2>
+        </div>
+        <div id="matchSignals" class="signal-list"></div>
+      </article>
+
+      <article class="card span-4">
+        <div class="card-top">
+          <h2 class="eyebrow">Mismatch Signals</h2>
+        </div>
+        <div id="mismatchSignals" class="signal-list"></div>
+      </article>
+    </section>
+
+    <div class="footer-note">
+      Append-only truth bus · local-first projection · explicit containment and promotion boundaries
+    </div>
+  </div>
+
+  <script>
+    const statusPill = document.getElementById("statusPill");
+    const policyPill = document.getElementById("policyPill");
+
+    function toPolicyTone(action) {
+      switch ((action || "").toLowerCase()) {
+        case "allow":
+          return "trusted";
+        case "warn":
+        case "review":
+          return "shifted";
+        case "quarantine":
+        case "deny":
+          return "suspicious";
+        default:
+          return "unknown";
+      }
+    }
+
+    function setPill(element, text, tone) {
+      element.textContent = text;
+      element.className = `status-pill ${tone || "unknown"}`;
+    }
+
+    function setCardTone(cardId, tone) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      card.dataset.tone = tone || "unknown";
+    }
+
+    function setSignals(containerId, values) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      const items = values && values.length ? values : ["none"];
+      for (const value of items) {
+        const span = document.createElement("span");
+        span.className = "signal";
+        span.textContent = value;
+        span.title = value;
+        container.appendChild(span);
+      }
+    }
+
+    function shortTime(value) {
+      if (!value) return "n/a";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleString([], {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function truthyText(value, yes = "yes", no = "no") {
+      return value ? yes : no;
+    }
+
+    function safeListJoin(parts, fallback = "n/a") {
+      const filtered = parts.filter(Boolean);
+      return filtered.length ? filtered.join(" | ") : fallback;
+    }
+
+    function shortPath(path) {
+      if (!path) return "n/a";
+      const bits = String(path).split("/");
+      return bits.slice(-2).join("/");
+    }
+
+    function render(report) {
+      const status = report.overall_status || "unknown";
+      const surface = report.active_surface || {};
+      const web = report.active_web || {};
+      const binding = report.binding || {};
+      const context = report.active_mindseye || {};
+      const contextBinding = context.binding || {};
+      const timing = report.timing || {};
+      const busydawg = report.busydawg || {};
+      const policy = report.policy || {};
+      const feedback = report.active_ahk_feedback || {};
+      const packageInstall = report.active_package_install || {};
+      const qtf = report.active_qtf_execution || {};
+      const host = report.active_host_session || {};
+      const policyTone = toPolicyTone(policy.action);
+      const qtfSuccess = qtf.success === true;
+      const qtfFailed = qtf.success === false;
+      const hostSuspicious = !!host.compromise_suspected;
+
+      setPill(statusPill, status.toUpperCase(), status);
+      setPill(policyPill, `POLICY ${String(policy.action || "unknown").toUpperCase()}`, policyTone);
+
+      document.getElementById("summary").textContent = report.summary || "unknown: insufficient evidence";
+      document.getElementById("eventCount").textContent = timing.event_count ?? 0;
+      document.getElementById("rebuiltAt").textContent = shortTime(timing.rebuilt_at);
+      document.getElementById("railState").textContent = busydawg.rail_state || "rail:n/a";
+      document.getElementById("runtimeFiles").textContent =
+        `state:${shortPath(report.paths?.state)} | tags:${shortPath(report.paths?.tags)}`;
+
+      document.getElementById("packageHero").textContent =
+        packageInstall.package_name
+          ? `${packageInstall.manager || "pkg"} ${packageInstall.package_name}`
+          : "none";
+      document.getElementById("qtfHero").textContent =
+        qtf.label
+          ? `${qtf.backend || "qtf"}:${qtf.success ? "success" : "failed"}`
+          : "qtf:none";
+      document.getElementById("hostHero").textContent = host.stage || "none";
+      document.getElementById("hostHeroMeta").textContent =
+        safeListJoin([
+          host.current_desktop || host.desktop_session,
+          host.compromise_suspected ? "suspected" : "clean"
+        ]);
+      document.getElementById("contextHero").textContent =
+        context.condition || context.context_summary || "none";
+      document.getElementById("feedbackHero").textContent =
+        `feedback:${feedback.user_response || "none"}`;
+
+      document.getElementById("overallStatus").textContent = status.toUpperCase();
+      document.getElementById("statusBadge").textContent = busydawg.rail_state || "rail:n/a";
+      document.getElementById("statusCallout").textContent =
+        `BusyDawg hot node: ${busydawg.hot_node || "n/a"} | ${busydawg.summary || "no runtime summary"}`;
+      document.getElementById("pathsInfo").textContent =
+        [report.paths?.state, report.paths?.busydawg].filter(Boolean).join(" | ");
+      setCardTone("statusCard", status);
+
+      document.getElementById("surfaceTitle").textContent = surface.title || "none";
+      document.getElementById("surfaceMeta").textContent =
+        safeListJoin([surface.process_name, surface.process_path]);
+      document.getElementById("surfaceProcess").textContent = surface.process_name || "n/a";
+      document.getElementById("surfaceId").textContent = surface.surface_id || "n/a";
+      document.getElementById("surfaceBadge").textContent = surface.surface_trust || "inactive";
+      setCardTone("surfaceCard", surface.surface_trust || status);
+
+      document.getElementById("webTitle").textContent = web.title || "none";
+      document.getElementById("webMeta").textContent =
+        safeListJoin([web.origin, `web:${web.web_trust || "unknown"}`]);
+      document.getElementById("webOrigin").textContent = web.origin || "n/a";
+      document.getElementById("webTrust").textContent = web.web_trust || "unknown";
+      document.getElementById("webBadge").textContent = `web:${web.web_trust || "unknown"}`;
+      setCardTone("webCard", web.web_trust || status);
+
+      document.getElementById("bindingSummary").textContent = (binding.link_confidence || "none").toUpperCase();
+      document.getElementById("bindingUsed").textContent = truthyText(binding.binding_used_in_trust);
+      document.getElementById("bindingTarget").textContent =
+        binding.linked_surface_title || binding.linked_surface_id || "unbound";
+      document.getElementById("bindingMatchCount").textContent = (binding.match_signals || []).length;
+      document.getElementById("bindingMismatchCount").textContent = (binding.mismatch_signals || []).length;
+      document.getElementById("bindingBadge").textContent = binding.link_confidence || "none";
+      setCardTone("bindingCard",
+        (binding.mismatch_signals || []).length ? "shifted"
+        : (binding.link_confidence || "none") === "high" ? "trusted"
+        : "unknown"
+      );
+
+      document.getElementById("mindseyeTitle").textContent =
+        context.context_summary || context.condition || context.raw_text || "none";
+      document.getElementById("mindseyeMeta").textContent =
+        safeListJoin([
+          context.stage ? `stage:${context.stage}` : "",
+          `focus:${context.focus_level ?? "?"}`,
+          `stress:${context.stress_level ?? "?"}`
+        ]);
+      document.getElementById("mindseyeBind").textContent = contextBinding.confidence || "none";
+      document.getElementById("mindseyeTarget").textContent =
+        contextBinding.linked_surface_title || contextBinding.linked_surface_id || "unbound";
+      document.getElementById("mindseyeIntent").textContent = context.intent_signal || "n/a";
+      document.getElementById("contextBadge").textContent = context.condition || "context";
+      setCardTone("contextCard",
+        (contextBinding.confidence || "none") === "high" ? "trusted" : "unknown"
+      );
+
+      document.getElementById("policyAction").textContent = String(policy.action || "warn").toUpperCase();
+      document.getElementById("policyReason").textContent = policy.reason || "n/a";
+      document.getElementById("policyRule").textContent = policy.policy_rule || "default_fallback";
+      document.getElementById("policyApplied").textContent = shortTime(policy.applied_at);
+      document.getElementById("policyBadge").textContent = policy.policy_rule || "default_fallback";
+      setCardTone("policyCard", policyTone);
+
+      document.getElementById("feedbackAction").textContent =
+        feedback.user_response ? feedback.user_response.toUpperCase() : "none";
+      document.getElementById("feedbackReason").textContent = feedback.reason || "No operator feedback captured yet.";
+      document.getElementById("feedbackPolicyAction").textContent = feedback.original_action || "n/a";
+      document.getElementById("feedbackTarget").textContent =
+        feedback.surface_title || feedback.surface_id || feedback.web_origin || "n/a";
+      document.getElementById("feedbackBadge").textContent =
+        feedback.user_response ? `feedback:${feedback.user_response}` : "idle";
+      setCardTone("feedbackCard",
+        feedback.user_response === "decline" ? "suspicious"
+        : feedback.user_response === "continue" ? "trusted"
+        : "unknown"
+      );
+
+      document.getElementById("packageTitle").textContent =
+        packageInstall.package_name
+          ? `${packageInstall.manager || "package"} ${packageInstall.operation || "observe"} ${packageInstall.package_name}`
+          : "none";
+      document.getElementById("packageMeta").textContent =
+        safeListJoin([
+          packageInstall.command_text,
+          packageInstall.version_spec,
+          packageInstall.workspace_seed
+        ], "No active package flow.");
+      document.getElementById("packageSource").textContent = packageInstall.source_kind || "n/a";
+      document.getElementById("packageLockfile").textContent = packageInstall.lockfile_state || "n/a";
+      document.getElementById("packageScripts").textContent = packageInstall.scripts_policy || "n/a";
+      document.getElementById("packageBadge").textContent =
+        packageInstall.qtf_requested ? "routed-to-qtf" : (packageInstall.manager || "inactive");
+      document.getElementById("qtfStatus").textContent =
+        qtf.label
+          ? `${qtfSuccess ? "success" : qtfFailed ? "failed" : "unknown"} via ${qtf.backend || "none"} (${qtf.label})`
+          : "none";
+      document.getElementById("qtfCommand").textContent = qtf.command_text || packageInstall.command_text || "n/a";
+      document.getElementById("qtfChanges").textContent =
+        `+${(qtf.created_files || []).length} ~${(qtf.modified_files || []).length} -${(qtf.deleted_files || []).length}`;
+      setCardTone("packageCard",
+        qtfFailed ? "suspicious"
+        : policyTone
+      );
+
+      document.getElementById("hostTitle").textContent = host.stage || "none";
+      document.getElementById("hostMeta").textContent =
+        safeListJoin([
+          host.hostname && host.user ? `${host.user}@${host.hostname}` : "",
+          host.current_desktop || host.desktop_session,
+          host.session_type
+        ]);
+      document.getElementById("hostBoot").textContent = host.boot_id || "n/a";
+      document.getElementById("hostRecovery").textContent = host.recovery_hint || "n/a";
+      document.getElementById("hostSuspicion").textContent =
+        host.compromise_suspected
+          ? (host.suspicion_note || "compromise suspected")
+          : "none";
+      document.getElementById("hostBadge").textContent =
+        host.compromise_suspected ? "suspected" : "clean";
+      setCardTone("hostCard", hostSuspicious ? "shifted" : "trusted");
+
+      setSignals("reasons", binding.trust_reasons || []);
+      setSignals("matchSignals", binding.match_signals || []);
+      setSignals("mismatchSignals", binding.mismatch_signals || []);
+    }
+
+    async function refresh() {
+      try {
+        const response = await fetch("/alpha/report", { cache: "no-store" });
+        const report = await response.json();
+        render(report);
+        document.getElementById("liveUpdateStatus").textContent = "Live from /alpha/report";
+      } catch (error) {
+        document.getElementById("summary").textContent = `console error: ${error}`;
+        setPill(statusPill, "OFFLINE", "suspicious");
+        setPill(policyPill, "POLICY OFFLINE", "suspicious");
+        document.getElementById("liveUpdateStatus").textContent = "Bridge offline";
+      }
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", refresh);
+    refresh();
+    setInterval(refresh, 2000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+ForwardMouseHold(state, *) {
+    global hwndFollowers
+
+    MouseGetPos(&x, &y)
+
+    ; Get topmost D2R window (leader)
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1)
+        return
+
+    leaderWin := winList[1]
+    pos := GetWindowRect(leaderWin)
+
+    ; Only pass input if mouse is inside the leader window bounds
+    if (x < pos.left || x > pos.right || y < pos.top || y > pos.bottom)
+        return
+
+    for hwnd in hwndFollowers {
+        if !hwnd
+            continue
+        pt := ScreenToClient(hwnd, x, y)
+        lParam := (pt.y << 16) | (pt.x & 0xFFFF)
+        msg := (state = "down")  ? 0x201
+             : (state = "up")    ? 0x202
+             : (state = "rdown") ? 0x204
+             : (state = "rup")   ? 0x205
+             : 0
+        if msg
+            PostMessage(msg, (msg & 1), lParam, , "ahk_id " hwnd)
+    }
+}
+
+ScreenToClient(hwnd, x, y) {
+    pt := Buffer(8)
+    NumPut("Int", x, pt)
+    NumPut("Int", y, pt, 4)
+    DllCall("ScreenToClient", "Ptr", hwnd, "Ptr", pt)
+    return { x: NumGet(pt, 0, "Int"), y: NumGet(pt, 4, "Int") }
+}
+
+;------pair hk's
+;Hotkey("~LButton", ForwardMouseHold.Bind("down"), "On")
+;Hotkey("~LButton up", ForwardMouseHold.Bind("up"), "On")
+;Hotkey("~RButton", ForwardMouseHold.Bind("rdown"), "On")
+;Hotkey("~RButton up", ForwardMouseHold.Bind("rup"), "On")

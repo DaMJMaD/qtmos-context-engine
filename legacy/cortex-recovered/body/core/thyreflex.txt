@@ -1,0 +1,21 @@
+pulse := GetPulseState()
+
+if pulse.state = "OK" {
+    hp := StrSplit(pulse.value, " / ")[1]
+    maxHp := StrSplit(pulse.value, " / ")[2]
+    hpPercent := Round((hp / maxHp) * 100)
+
+    ; Example reflex:
+    if (hpPercent < 50) {
+        Send("{4}") ; use Full Rejuvenation potion
+        ToolTip "⚕️ FullRev Triggered! HP at " hpPercent "%"
+        SetTimer () => ToolTip(), -1000
+    }
+}
+
+else if pulse.state = "STALE" {
+    ; wait or check for desync
+}
+else if pulse.state = "DEAD" {
+    ; system is down — maybe pause AI
+}

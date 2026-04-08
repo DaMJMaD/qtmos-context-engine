@@ -1,0 +1,38 @@
+{
+  "id": "clean_trusted_no_mindseye_allow",
+  "name": "Clean trusted no extra human context allow",
+  "surface": {
+    "observation": {
+      "bounds": {
+        "h": 982,
+        "w": 1920,
+        "x": 0,
+        "y": 32
+      },
+      "focused": true,
+      "pid": 7539,
+      "platform": "linux-x11",
+      "process_name": "chrome",
+      "process_path": "/opt/google/chrome/chrome",
+      "surface_id": "x11:0x2c00004",
+      "window_class": "google-chrome | Google-chrome",
+      "window_title": "Example Domain - Google Chrome",
+      "z_order": "active"
+    },
+    "trust_status": "trusted"
+  },
+  "web": {
+    "browser": "chrome",
+    "tab_id": 41,
+    "text_snippet": "Example Domain for illustrative examples",
+    "title": "Example Domain",
+    "url": "https://example.com",
+    "window_id": 9
+  },
+  "expected": {
+    "overall_trust": "trusted",
+    "web_trust": "trusted",
+    "policy_action": "allow",
+    "policy_rule": "trusted_bound_allow"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "expected": {
+    "hot_node": "bd_qtf_active",
+    "package_manager": "npm",
+    "package_qtf_requested": true,
+    "policy_action": "allow",
+    "policy_rule": "package_clean_local_allow",
+    "qtf_backend": "podman",
+    "qtf_success": true
+  },
+  "id": "local_qtf_allow",
+  "name": "Local npm install routed through QTF allows cleanly",
+  "package": {
+    "command": [
+      "npm",
+      "install",
+      "./local-package.tgz"
+    ],
+    "lockfile_state": "present",
+    "manager": "npm",
+    "operation": "install",
+    "package_name": "local-package",
+    "qtf_label": "pkg-npm-install-local-package",
+    "qtf_requested": true,
+    "scripts_policy": "default",
+    "source_kind": "local",
+    "workspace_seed": "/tmp/local-package"
+  },
+  "qtf": {
+    "backend": "podman",
+    "backend_requested": "auto",
+    "capture_ts": "2026-04-08T20:15:00Z",
+    "command": [
+      "npm",
+      "install",
+      "./local-package.tgz"
+    ],
+    "command_text": "npm install ./local-package.tgz",
+    "created_files": [
+      "node_modules/local-package/index.js"
+    ],
+    "duration_ms": 1180,
+    "exit_code": 0,
+    "image": "ubuntu:latest",
+    "label": "pkg-npm-install-local-package",
+    "success": true,
+    "workspace_mode": "directory",
+    "workspace_seed": "/tmp/local-package"
+  }
+}

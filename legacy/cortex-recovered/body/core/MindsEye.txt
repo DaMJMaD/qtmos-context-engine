@@ -1,0 +1,80 @@
+Global imageDir := "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\Daves Play Buddies\image directory"
+
+Global leaderScreenshotPath := imageDir . "\thybody.txt"
+Global GdipToken
+
+CaptureLeaderRegion() {
+    global leaderScreenshotPath, GdipToken
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1) {
+        MsgBox("❌ No D2R windows found.")
+        return
+    }
+
+    hwnd := winList[1]
+    WinActivate("ahk_id " hwnd)
+    Sleep(300)
+
+    pos := GetWindowRect(hwnd)
+    x := pos.left, y := pos.top, w := 1285, h := 840
+
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", w, "Int", h, "Ptr")
+    hOld := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap)
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", w, "Int", h,
+                     "Ptr", hDC, "Int", x, "Int", y, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hOld)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+    DllCall("ReleaseDC", "Ptr", 0, "Ptr", hDC)
+
+    if !GdipToken
+        Gdip_Startup()
+
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    DeleteObject(hBitmap)
+
+    if !pBitmap {
+        MsgBox("❌ Failed to create bitmap.")
+        return
+    }
+
+    if !Gdip_SaveBitmapToFile(pBitmap, leaderScreenshotPath) {
+        MsgBox("❌ Failed to save screenshot.")
+    } else {
+        ToolTip("✅ Screenshot saved"), Sleep(800), ToolTip()
+    }
+
+    Gdip_DisposeImage(pBitmap)
+}
+ParseVitalsFromGlyphs() {
+    #Requires AutoHotkey v2.0
+
+global imageDir := "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\Daves Play Buddies\image directory"
+;#Include "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\MindsEye.ahk" - relies on this
+GetWindowFromPath(targetPath) {
+    for hwnd in WinGetList("ahk_exe D2R.exe") {
+        path := WinGetProcessPath(hwnd)
+        if InStr(path, targetPath)
+            return hwnd
+    }
+    return 0
+}
+
+leaderPath := WinGetProcessPath("A")
+
+leaderHwnd := GetWindowFromPath(leaderPath)
+
+
+leaderPath := "C:\Program Files (x86)\Diablo II Resurrected\D2R.exe"
+leaderHwnd := GetWindowFromPath(leaderPath) ; you'll need a helper function for this
+
+#Include C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\script body files\Modular\GetExecutablePathFromWinTitle.txt
+
+
+#Include "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\script body files\Modular\Gdip_Core.txt"
+;#Include "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\script body files\Modular\Gdip_Startup.txt"
+
+#Include "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\script body files\Modular\ParseVitalsFromImage.txt"
+#Include "C:\Users\DaMJM\OneDrive\Desktop\David's Working AHK\Daves Play Buddies\script body files\Modular\WatchVitals.txt"

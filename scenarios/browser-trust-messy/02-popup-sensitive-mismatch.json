@@ -1,0 +1,43 @@
+{
+  "expected": {
+    "binding_confidence": "high",
+    "binding_used_in_trust": false,
+    "mismatch_flags_include": [
+      "title_domain_mismatch",
+      "text_domain_mismatch",
+      "sensitive_flow_low_trust"
+    ],
+    "overall_trust": "suspicious",
+    "web_trust": "suspicious"
+  },
+  "id": "popup_sensitive_mismatch",
+  "name": "Popup-like sensitive page on unrelated domain",
+  "surface": {
+    "observation": {
+      "bounds": {
+        "h": 720,
+        "w": 980,
+        "x": 420,
+        "y": 120
+      },
+      "focused": true,
+      "pid": 7539,
+      "platform": "linux-x11",
+      "process_name": "chrome",
+      "process_path": "/opt/google/chrome/chrome",
+      "surface_id": "x11:0x2c00008",
+      "window_class": "google-chrome | Google-chrome",
+      "window_title": "PayPal Account Verify - Google Chrome",
+      "z_order": "active"
+    },
+    "trust_status": "trusted"
+  },
+  "web": {
+    "browser": "chrome",
+    "tab_id": 77,
+    "text_snippet": "PayPal wallet verify payment method and password to continue",
+    "title": "PayPal Account Verify",
+    "url": "https://alerts-security.example-evil.test",
+    "window_id": 14
+  }
+}

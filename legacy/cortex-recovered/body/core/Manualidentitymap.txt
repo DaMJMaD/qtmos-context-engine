@@ -1,0 +1,19 @@
+GetMyNameFromPath() {
+    path := WinGetProcessPath("A")
+
+    switch path {
+        case "C:\Program Files (x86)\\Diablo II Resurrected\D2R.exe":
+            return "DaMJMaD"
+        case "C:\Program Files (x86)\\Diablo 2 Resurrected\D2R.exe":
+            return "Khurst"
+        case "C:\Program Files (x86)\\Diablo 2x2 Resurrected\D2R.exe":
+            return "MaD"
+        case "C:\Program Files (x86)\\Diablo 2x3 Resurrected\D2R.exe":
+            return "SataNSmiLeD"
+        default:
+            MsgBox("❌ Could not match executable path to a known character name.")
+            ExitApp()
+            MsgBox("Detected path: " path)
+
+    }
+}

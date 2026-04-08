@@ -1,0 +1,52 @@
+CaptureManaRegion() {
+    global GdipToken, imageDir
+    manaImagePath := imageDir . "\thymana.png"
+
+    ; Get D2R window
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 1) {
+        MsgBox("❌ No D2R windows found.")
+        return
+    }
+
+    hwnd := winList[1]
+    WinActivate("ahk_id " hwnd)
+    Sleep(200)
+
+    pos := GetWindowRect(hwnd)
+    ; Offset for mana region in 1285x840 window
+    x := pos.left + 948
+    y := pos.top + 671
+    w := 1096 - 948  ; 148px wide
+    h := 697 - 671   ; 26px tall
+
+    ; Capture region
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", w, "Int", h, "Ptr")
+    hOld := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap)
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", w, "Int", h,
+                     "Ptr", hDC, "Int", x, "Int", y, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hOld)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+    DllCall("ReleaseDC", "Ptr", 0, "Ptr", hDC)
+
+    if !GdipToken
+        Gdip_Startup()
+
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    DeleteObject(hBitmap)
+
+    if !pBitmap {
+        MsgBox("❌ Failed to create mana bitmap.")
+        return
+    }
+
+    if !Gdip_SaveBitmapToFile(pBitmap, manaImagePath) {
+        MsgBox("❌ Failed to save thymana.png")
+    } else {
+        ToolTip("💧 Mana captured"), Sleep(800), ToolTip()
+    }
+
+    Gdip_DisposeImage(pBitmap)
+}

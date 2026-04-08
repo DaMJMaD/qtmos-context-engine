@@ -1,0 +1,87 @@
+[
+  {
+    "name": "package_qtf_fail_quarantine",
+    "package_qtf_requested": true,
+    "qtf_success": false,
+    "action": "quarantine",
+    "reason": "QTF execution failed and the package flow should stay contained"
+  },
+  {
+    "name": "package_registry_review",
+    "package_source_kind": "registry",
+    "action": "review",
+    "reason": "Registry-sourced package requires review before promotion"
+  },
+  {
+    "name": "package_no_lockfile_review",
+    "package_lockfile_state": "missing",
+    "action": "review",
+    "reason": "Package flow has no lockfile and should be reviewed before promotion"
+  },
+  {
+    "name": "package_scripts_host_review",
+    "package_scripts_policy": "default",
+    "package_qtf_requested": false,
+    "action": "review",
+    "reason": "Install scripts remain enabled outside QTF and need review"
+  },
+  {
+    "name": "package_clean_local_allow",
+    "package_source_kind": "local",
+    "package_qtf_requested": true,
+    "qtf_success": true,
+    "action": "allow",
+    "reason": "Local package completed cleanly inside QTF"
+  },
+  {
+    "name": "hard_deny",
+    "trust": "suspicious",
+    "sensitive": true,
+    "action": "deny",
+    "reason": "Explicit high-risk pattern on a sensitive surface"
+  },
+  {
+    "name": "trusted_clean",
+    "trust": "trusted",
+    "context_condition": [
+      "STABLE"
+    ],
+    "min_binding": 0.7,
+    "action": "allow",
+    "reason": "Clean host, stable user context, strong binding"
+  },
+  {
+    "name": "trusted_bound_allow",
+    "trust": "trusted",
+    "min_binding": 0.7,
+    "action": "allow",
+    "reason": "Clean host and strong binding support normal flow"
+  },
+  {
+    "name": "high_stress_mismatch",
+    "trust": "shifted",
+    "context_condition": [
+      "HIGH_STRESS"
+    ],
+    "action": "review",
+    "reason": "User stress plus surface drift needs an explicit review"
+  },
+  {
+    "name": "suspicious_sensitive",
+    "trust": "suspicious",
+    "action": "quarantine",
+    "reason": "Sensitive page or strong mismatch requires containment"
+  },
+  {
+    "name": "shifted_mild",
+    "trust": "shifted",
+    "action": "warn",
+    "reason": "Host or identity drift detected"
+  },
+  {
+    "name": "unknown_weak",
+    "trust": "unknown",
+    "action": "review",
+    "reason": "Insufficient observation requires manual review"
+  }
+]

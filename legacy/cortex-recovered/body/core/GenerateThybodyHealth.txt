@@ -1,0 +1,46 @@
+; GenerateThybodyHealth.ahk
+; Captures the HP display region and writes thybody.txt with parsed values
+
+GenerateThybodyHealth() {
+    static hpRegion := { x1: 256, y1: 678, x2: 354, y2: 691 }
+    global imageDir
+    outputFile := imageDir . "\thybody.txt"
+
+    ; Init GDI+
+    if !DllCall("GetModuleHandle", "str", "gdiplus") {
+        hModule := DllCall("LoadLibrary", "Str", "gdiplus", "Ptr")
+        si := Buffer(24, 0)
+        NumPut("UInt", 1, si)
+        DllCall("gdiplus\GdiplusStartup", "Ptr*", &pToken := 0, "Ptr", si, "Ptr", 0)
+    }
+
+    width := hpRegion.x2 - hpRegion.x1
+    height := hpRegion.y2 - hpRegion.y1
+
+    ; Capture region
+    hDC := DllCall("GetDC", "Ptr", 0, "Ptr")
+    hMemDC := DllCall("CreateCompatibleDC", "Ptr", hDC, "Ptr")
+    hBitmap := DllCall("CreateCompatibleBitmap", "Ptr", hDC, "Int", width, "Int", height, "Ptr")
+    obm := DllCall("SelectObject", "Ptr", hMemDC, "Ptr", hBitmap)
+    DllCall("BitBlt", "Ptr", hMemDC, "Int", 0, "Int", 0, "Int", width, "Int", height,
+            "Ptr", hDC, "Int", hpRegion.x1, "Int", hpRegion.y1, "UInt", 0x00CC0020)
+    DllCall("SelectObject", "Ptr", hMemDC, "Ptr", obm)
+    DllCall("DeleteDC", "Ptr", hMemDC)
+    DllCall("ReleaseDC", "Ptr", 0, "Ptr", hDC)
+
+    ; Save image
+    savePath := imageDir . "\thyhealth.png"
+    Gdip_Startup()
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    Gdip_SaveBitmapToFile(pBitmap, savePath)
+    Gdip_DisposeImage(pBitmap)
+    DeleteObject(hBitmap)
+
+    ; Simulated values until OCR
+    currentHP := 3110
+    maxHP := 3110
+
+    FileDelete(outputFile)
+    FileAppend("HP: " currentHP " / " maxHP "`nCondition: STABLE`nInstinct: NONE", outputFile)
+    ToolTip("💓 ThyBody updated"), Sleep(800), ToolTip()
+}

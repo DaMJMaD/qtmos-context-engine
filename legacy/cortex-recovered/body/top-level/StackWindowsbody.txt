@@ -1,0 +1,42 @@
+StackWindows() {
+    global hwndLeader, hwndFollowers
+
+    winList := WinGetList("ahk_exe d2r.exe")
+    if (winList.Length < 2) {
+        MsgBox("❌ Not enough D2R windows to stack.")
+        return
+    }
+
+    hwndLeader := winList[1]
+    hwndFollowers := []
+    ; Start from the second window (index 2) to skip the leader window
+    for index, hwnd in winList {
+        if (index > 1)  ; Skip the leader window (first in the list)
+            hwndFollowers.Push(hwnd)
+    }
+
+    pos := GetWindowRect(hwndLeader)
+    for hwnd in hwndFollowers
+        WinMove(pos.left, pos.top,,, "ahk_id " hwnd)
+
+    MsgBox("✅ Followers stacked under leader.", "Stacked", "Iconi")
+}
+
+ScreenToClient(hwnd, x, y) {
+    pt := Buffer(8)
+    NumPut("Int", x, pt)
+    NumPut("Int", y, pt, 4)
+    DllCall("ScreenToClient", "Ptr", hwnd, "Ptr", pt)
+    return { x: NumGet(pt, 0, "Int"), y: NumGet(pt, 4, "Int") }
+}
+
+GetWindowRect(hwnd) {
+    buf := Buffer(16)
+    DllCall("GetWindowRect", "Ptr", hwnd, "Ptr", buf)
+    return {
+        left: NumGet(buf, 0, "Int"),
+        top: NumGet(buf, 4, "Int"),
+        right: NumGet(buf, 8, "Int"),
+        bottom: NumGet(buf, 12, "Int")
+    }
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "web.observe",
+  "subject": "web.active",
+  "payload": {
+    "web_claim": {
+      "browser": "chrome",
+      "label": "active_tab"
+    },
+    "web_observation": {
+      "browser": "chrome",
+      "capture_ts": "2026-04-08T18:00:00Z",
+      "domain": "example.com",
+      "linked_surface": {
+        "link_confidence": "high",
+        "match_signals": [
+          "process_family_match",
+          "title_overlap",
+          "timestamp_proximity",
+          "surface_focused"
+        ],
+        "mismatch_signals": [],
+        "process_name": "chrome",
+        "process_path": "/opt/google/chrome/chrome",
+        "surface_id": "x11:0x2c00004",
+        "surface_ts": "2026-04-08T18:00:00Z",
+        "window_title": "Example Domain - Google Chrome"
+      },
+      "mutated": false,
+      "origin": "https://example.com",
+      "tab_id": 41,
+      "text_snippet": "Example Domain This domain is for use in illustrative examples in documents.",
+      "title": "Example Domain",
+      "url": "https://example.com",
+      "visible": true,
+      "window_id": 9
+    },
+    "web_signature": {
+      "content_hash": "sha256:examplecontenthash",
+      "signature_version": "v1",
+      "stable_keys": [
+        "origin",
+        "domain",
+        "url",
+        "title",
+        "tab_id",
+        "window_id"
+      ]
+    },
+    "trust_state": {
+      "binding_used_in_trust": true,
+      "drift_flags": [],
+      "mismatch_flags": [],
+      "summary": "trusted: high-confidence browser/surface alignment",
+      "trust_reasons": [
+        "bound_surface_alignment"
+      ],
+      "status": "unknown"
+    }
+  },
+  "source": {
+    "host": "browser-observer",
+    "observer": "chrome-extension",
+    "session": "chrome-active",
+    "workspace": "qtmos-alpha"
+  },
+  "tags": [
+    "web_observed",
+    "browser_claim"
+  ],
+  "type": "web.observe"
+}
