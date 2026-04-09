@@ -2,6 +2,8 @@
 
 QTMoS is a local-first context-integrity and containment engine.
 
+Short version: QTMoS reconstructs trust from immutable runtime history, contains risky actions in QTF, and requires explicit promotion through EXT.
+
 It is built around a simple security idea: a lot of risky moments do not start with a known malware signature. They start when the machine, the browser, the session, the package action, and the human context stop lining up cleanly.
 
 QTMoS watches those seams, keeps the raw event line append-only, rebuilds current state from that truth, and projects trust and policy without hiding the reasoning.
@@ -51,9 +53,11 @@ That is not a contradiction. It means the current browser and surface are aligne
 ## What Makes It Different
 
 - One append-only bus shared across very different observer lanes
+- Current meaning is rebuilt from history instead of blindly trusting the live snapshot
 - Conservative trust: binding is evidence, not proof
 - Raw event truth stays separate from rebuilt current state and policy
 - Containment is first-class through QTF instead of pretending the host is always safe
+- Promotion is explicit through EXT instead of being silently implied by containment success
 - Human-loop feedback is explicit instead of hidden behind opaque automation
 
 ## What QTMoS Is Not
@@ -159,6 +163,14 @@ There is a fuller walkthrough in [docs/TEST_DRIVE.md](docs/TEST_DRIVE.md).
 - policy is a recommendation layer
 - projection is not allowed to overwrite the source event
 - binding is evidence, not proof
+
+## Public Positioning
+
+If you need a concise way to describe QTMoS in public:
+
+- `QTMoS is a local-first context-integrity engine that reconstructs trust from immutable runtime history, contains risky actions in QTF, and requires explicit promotion through EXT.`
+
+There is a fuller public-facing copy pack in [docs/PUBLIC_POSITIONING.md](docs/PUBLIC_POSITIONING.md).
 
 ## Repo Layout
 

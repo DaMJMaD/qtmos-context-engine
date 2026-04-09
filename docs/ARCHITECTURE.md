@@ -2,13 +2,20 @@
 
 ## Working Definition
 
-QTMoS is a local cognitive engine.
+QTMoS is a local-first context-integrity engine.
 
-Hosts embed it.
-Services expose it.
-Archives inform it.
+It treats the append-only event line as truth, rebuilds current state from that history, and projects trust, policy, and operator-facing views without overwriting the raw record.
 
 The bridge is the shared layer that lets raw events, interpretation, state, and hosts stay connected without turning every integration into a new runtime.
+
+Short operational model:
+
+- observe the seams
+- append raw truth
+- rebuild current meaning
+- separate trust from policy
+- contain in QTF
+- require explicit promotion through EXT
 
 ## Source Lessons Integrated Here
 
