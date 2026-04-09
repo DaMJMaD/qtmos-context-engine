@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import tempfile
 import time
@@ -24,16 +23,6 @@ LANE_CATALOG: list[dict[str, Any]] = [
         "copy_hint": "Automated locally through codex exec.",
     },
     {
-        "id": "claude_code",
-        "label": "Claude Code",
-        "kind": "local",
-        "provider": "claude",
-        "default_model": "qwen3.5",
-        "model_options": ["qwen3.5", "sonnet", "opus"],
-        "tagline": "Governed local Claude lane with cheap-mode defaults.",
-        "copy_hint": "Automated locally through the governed Claude wrapper.",
-    },
-    {
         "id": "web_gpt",
         "label": "Web GPT",
         "kind": "manual",
@@ -43,16 +32,6 @@ LANE_CATALOG: list[dict[str, Any]] = [
         "tagline": "Paste browser-chat output here after running the generated prompt.",
         "copy_hint": "Copy the generated prompt into your browser chat, then paste the reply back here.",
     },
-    {
-        "id": "claude_web",
-        "label": "Claude Web",
-        "kind": "manual",
-        "provider": "manual",
-        "default_model": "manual",
-        "model_options": ["manual"],
-        "tagline": "Use this for the full Claude web/app lane when you want the heavier model.",
-        "copy_hint": "Copy the generated prompt into Claude web/app, then paste the answer back here.",
-    },
 ]
 
 RUBRIC: list[dict[str, str]] = [
@@ -61,6 +40,17 @@ RUBRIC: list[dict[str, str]] = [
     {"id": "risk_honesty", "label": "Risk Honesty"},
     {"id": "novelty", "label": "Novelty"},
 ]
+
+JUDGE_OPTIONS: list[dict[str, Any]] = [
+    {"provider": "codex", "label": "Codex Judge", "model_options": ["gpt-5.4", "gpt-5.4-mini"]},
+]
+
+
+def _judge_option(provider: str) -> dict[str, Any] | None:
+    for item in JUDGE_OPTIONS:
+        if item["provider"] == provider:
+            return item
+    return None
 
 
 def _lane_defaults() -> dict[str, dict[str, Any]]:
@@ -143,6 +133,12 @@ def sanitize_spawn_workspace(raw: Any) -> dict[str, Any]:
         updated_at = raw_judge.get("updated_at")
         if isinstance(updated_at, str):
             judge["updated_at"] = updated_at
+        option = _judge_option(judge["provider"])
+        if option is None:
+            judge["provider"] = defaults["judge"]["provider"]
+            judge["model"] = defaults["judge"]["model"]
+        elif judge["model"] not in option["model_options"]:
+            judge["model"] = option["model_options"][0]
         workspace["judge"] = judge
 
     raw_lanes = raw.get("lanes")
@@ -187,46 +183,13 @@ def build_spawn_payload() -> dict[str, Any]:
         "catalog": {
             "lanes": LANE_CATALOG,
             "rubric": RUBRIC,
-            "judge_options": [
-                {"provider": "codex", "label": "Codex Judge", "model_options": ["gpt-5.4", "gpt-5.4-mini"]},
-                {"provider": "claude", "label": "Claude Judge", "model_options": ["qwen3.5", "sonnet", "opus"]},
-            ],
+            "judge_options": JUDGE_OPTIONS,
         },
         "guidance": {
             "seed": "Fan one shared prompt into multiple lanes and let them answer independently.",
             "cross": "Then make each lane inspect the others instead of protecting its first answer.",
             "foldback": "Use a final judge prompt to score the disagreement and recommend the next move.",
         },
-    }
-
-
-def _run_claude(prompt: str, model: str) -> dict[str, Any]:
-    env = os.environ.copy()
-    env["CLAUDE_MODEL_OVERRIDE"] = model or "qwen3.5"
-    command = [str(PROJECT_ROOT / "scripts" / "claude-quick.sh"), prompt]
-    started = time.monotonic()
-    completed = subprocess.run(
-        command,
-        cwd=PROJECT_ROOT,
-        env=env,
-        stdin=subprocess.DEVNULL,
-        capture_output=True,
-        text=True,
-        timeout=240,
-        check=False,
-    )
-    response = (completed.stdout or "").strip()
-    return {
-        "ok": completed.returncode == 0 and bool(response),
-        "provider": "claude",
-        "model": env["CLAUDE_MODEL_OVERRIDE"],
-        "prompt": prompt,
-        "response": response,
-        "stdout": completed.stdout if completed.returncode != 0 else "",
-        "stderr": completed.stderr if completed.returncode != 0 else "",
-        "returncode": completed.returncode,
-        "duration_ms": int((time.monotonic() - started) * 1000),
-        "ts": now_iso(),
     }
 
 
@@ -299,8 +262,6 @@ def invoke_spawn_provider(*, provider: str, prompt: str, model: str = "") -> dic
             "ts": now_iso(),
         }
 
-    if provider == "claude":
-        return _run_claude(prompt, model)
     if provider == "codex":
         return _run_codex(prompt, model)
 
