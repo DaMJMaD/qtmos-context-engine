@@ -27,7 +27,7 @@ Usage:
 ./bridges/ahk-v2/run-linux.sh status
 ./bridges/ahk-v2/run-linux.sh defaults
 ./bridges/ahk-v2/run-linux.sh learn "Preserve the line."
-./bridges/ahk-v2/run-linux.sh record host codex "manual test"
+./bridges/ahk-v2/run-linux.sh record host local-shell "manual test"
 ```
 
 Integration direction:

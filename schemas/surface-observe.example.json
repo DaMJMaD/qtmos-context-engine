@@ -19,9 +19,9 @@
       "x11_id": "0x3e00004",
       "pid": 1066243,
       "process_name": "electron",
-      "process_path": "/opt/codex-app/electron",
-      "window_class": "codex | Codex",
-      "window_title": "Codex",
+      "process_path": "/opt/operator-shell/electron",
+      "window_class": "operator-shell | Operator Shell",
+      "window_title": "Operator Shell",
       "bounds": {
         "x": 0,
         "y": 69,

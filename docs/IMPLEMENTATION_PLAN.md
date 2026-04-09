@@ -116,7 +116,7 @@ Build the logic that scans the event log and materializes latest state.
 
 ### Task 3: First Host Adapter
 
-Use either Codex or terminal as the first host.
+Use either a local shell host or terminal as the first host.
 The first host must emit `host.capture` and read `bridge.handoff`.
 
 ### Task 4: BusyDawg Projection

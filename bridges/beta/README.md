@@ -34,7 +34,7 @@ service/
 - `decode`: event and telemetry parsing
 - `state`: materialized latest-known views
 - `tags`: overlay, rails, and confidence markers
-- `hosts`: Codex, terminal, HUD, web adapters
+- `hosts`: operator shell, terminal, HUD, web adapters
 - `ingest`: optional telemetry sources like read-only CAN/J1939
 
 ## Beta Rules

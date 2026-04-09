@@ -584,12 +584,12 @@
         <div class="summary-card">
           <div class="label">Automated Lanes</div>
           <div class="value" id="autoCount">2 local lanes</div>
-          <div class="subvalue">Codex and Claude can run directly from this page.</div>
+          <div class="subvalue">Local runtime lanes can run directly from this page.</div>
         </div>
         <div class="summary-card">
           <div class="label">Manual Lanes</div>
           <div class="value" id="manualCount">2 browser lanes</div>
-          <div class="subvalue">Web GPT and Claude Web stay as paste-back lanes until you wire browser automation or APIs.</div>
+          <div class="subvalue">Browser lanes stay paste-back until you wire browser automation or APIs.</div>
         </div>
         <div class="summary-card">
           <div class="label">Flow</div>
@@ -632,12 +632,12 @@
         <div class="section-head">
           <div class="section-copy">
             <div class="section-label">Primary Duality</div>
-            <h2 class="section-title">Local Pair</h2>
+            <h2 class="section-title">Local Lane</h2>
             <p class="section-summary">
-              This is the Linux-native pair: Codex and Claude Code run directly from the Spawn shell and form the first dual split.
+              This is the direct local execution lane: your configured runtime runs from the Spawn shell and anchors the first pass.
             </p>
           </div>
-          <div class="tone local">Construction Pair</div>
+          <div class="tone local">Construction Lane</div>
         </div>
         <div class="primary-grid" id="primaryGrid"></div>
       </section>
@@ -646,12 +646,12 @@
         <div class="section-head">
           <div class="section-copy">
             <div class="section-label">External Witnesses</div>
-            <h2 class="section-title">Browser Pair</h2>
+            <h2 class="section-title">Browser Lane</h2>
             <p class="section-summary">
-              These lanes are for your web-heavy models. Spawn builds the prompts here, then you paste the outside replies back in for cross-exam and foldback.
+              This lane is for your browser-side model. Spawn builds the prompts here, then you paste the outside replies back in for cross-exam and foldback.
             </p>
           </div>
-          <div class="tone manual">Pasteback Pair</div>
+          <div class="tone manual">Pasteback Lane</div>
         </div>
         <div class="secondary-grid" id="secondaryGrid"></div>
       </section>
@@ -693,7 +693,7 @@
         </div>
       </div>
       <p class="footer-note" id="footerNote">
-        Tip: local lanes are ideal for fast iteration; browser lanes are where you can bring in the web-heavy models and compare them against your local pair.
+        Tip: local lanes are ideal for fast iteration; browser lanes are where you can bring in web-heavy models and compare them against the local run.
       </p>
     </section>
   </div>

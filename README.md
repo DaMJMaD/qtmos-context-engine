@@ -125,7 +125,7 @@ Then open:
 
 Use `/alpha/showcase` when you want all three demo stories rendered side-by-side in a visual + text layout for screenshots, walkthroughs, or quick evaluation.
 
-Use `/alpha/spawn` when you want one prompt fanned out across multiple lanes, with local Codex + Claude automation, manual browser/web lanes, cross-exam prompts, and a final foldback judge.
+Use `/alpha/spawn` when you want one prompt fanned out across multiple lanes, with local runtime automation, manual browser lanes, cross-exam prompts, and a final foldback judge.
 
 If you want Spawn to feel more like a Linux app instead of a raw browser tab:
 

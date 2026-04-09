@@ -3,7 +3,7 @@
   "ts": "2026-04-08T12:00:00Z",
   "type": "host.capture",
   "source": {
-    "host": "codex",
+    "host": "operator-shell",
     "workspace": "/path/to/QTMoS-Alp-Beta",
     "session": "local-dev"
   },
