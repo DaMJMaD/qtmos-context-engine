@@ -1,5 +1,21 @@
 [
   {
+    "name": "host_lockdown_privilege_deny",
+    "host_compromise_suspected": true,
+    "host_recovery_hint": "lockdown_ready",
+    "privilege_active": true,
+    "privilege_result": "granted",
+    "action": "deny",
+    "reason": "Privilege escalation during a suspected host session should be denied"
+  },
+  {
+    "name": "host_suspected_privilege_review",
+    "host_compromise_suspected": true,
+    "privilege_active": true,
+    "action": "review",
+    "reason": "Privilege boundary during a suspected host session requires review"
+  },
+  {
     "name": "package_qtf_fail_quarantine",
     "package_qtf_requested": true,
     "qtf_success": false,

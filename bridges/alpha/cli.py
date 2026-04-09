@@ -23,12 +23,14 @@ from .paths import (
     MINDS_EYE_SCENARIOS_DIR,
     PACKAGE_SCENARIOS_DIR,
     POLICY_SCENARIOS_DIR,
+    PRIVILEGE_SCENARIOS_DIR,
     QTF_SCENARIOS_DIR,
     SCENARIOS_DIR,
 )
 from .http_bridge import serve as serve_http_bridge
 from .mindseye import ingest_mindseye_and_cycle
 from .package import observe_package_install
+from .privilege import observe_privilege_and_cycle
 from .project_busydawg import project_busydawg
 from .project_tags import project_tags
 from .qtf import run_qtf_command
@@ -44,6 +46,7 @@ from .validation import (
     validate_mindseye_scenarios,
     validate_package_scenarios,
     validate_policy_scenarios,
+    validate_privilege_scenarios,
     validate_qtf_scenarios,
 )
 from .web import append_web_event, build_web_event, load_previous_web
@@ -232,6 +235,9 @@ def build_parser() -> argparse.ArgumentParser:
     validate_host_cmd = sub.add_parser("validate-host-session", help="Run host session breadcrumb scenarios in memory")
     validate_host_cmd.add_argument("--dir", default=str(HOST_SESSION_SCENARIOS_DIR), help="Scenario directory path")
     validate_host_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
+    validate_privilege_cmd = sub.add_parser("validate-privilege", help="Run privilege boundary scenarios in memory")
+    validate_privilege_cmd.add_argument("--dir", default=str(PRIVILEGE_SCENARIOS_DIR), help="Scenario directory path")
+    validate_privilege_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
     validate_package_cmd = sub.add_parser("validate-package", help="Run package install routing scenarios in memory")
     validate_package_cmd.add_argument("--dir", default=str(PACKAGE_SCENARIOS_DIR), help="Scenario directory path")
     validate_package_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
@@ -297,6 +303,13 @@ def build_parser() -> argparse.ArgumentParser:
         default="observe_only",
         help="Explicit recovery hint to surface through report/BusyDawg",
     )
+    privilege_cmd = sub.add_parser("observe-privilege", help="Append one privilege.observe boundary event and rebuild projections")
+    privilege_cmd.add_argument("--method", choices=["sudo", "su", "pkexec", "doas", "custom"], default="sudo")
+    privilege_cmd.add_argument("--result", choices=["prompted", "granted", "denied", "failed"], default="prompted")
+    privilege_cmd.add_argument("--target-user", default="root", help="Intended target user")
+    privilege_cmd.add_argument("--target-uid", type=int, default=0, help="Intended target uid; use -1 to omit")
+    privilege_cmd.add_argument("--reason", default="", help="Optional note about why this privilege boundary is being recorded")
+    privilege_cmd.add_argument("command", nargs=argparse.REMAINDER, help="Observed command after --")
 
     surface_cmd = sub.add_parser("emit-surface", help="Append one surface.observe event")
     surface_cmd.add_argument("--host", default="linux-spy")
@@ -517,6 +530,28 @@ def main() -> int:
                         print(f"  - {failure}")
         return 0 if result["failed"] == 0 else 1
 
+    if args.cmd == "validate-privilege":
+        result = validate_privilege_scenarios(Path(args.dir))
+        if args.json:
+            print(dump_json(result))
+        else:
+            print(
+                f"Privilege validation: {result['passed']}/{result['scenario_count']} passed "
+                f"({result['failed']} failed)"
+            )
+            for item in result["results"]:
+                status = "PASS" if item["passed"] else "FAIL"
+                print(f"[{status}] {item['name']} ({item['id']})")
+                print(
+                    f"  Method: {item['actual'].get('method', '')} | "
+                    f"Result: {item['actual'].get('result', '')} | "
+                    f"Policy: {item['actual'].get('policy_action', '')} ({item['actual'].get('policy_rule', '')})"
+                )
+                if item["failures"]:
+                    for failure in item["failures"]:
+                        print(f"  - {failure}")
+        return 0 if result["failed"] == 0 else 1
+
     if args.cmd == "validate-package":
         result = validate_package_scenarios(Path(args.dir))
         if args.json:
@@ -718,6 +753,28 @@ def main() -> int:
             "overall_status": report.get("overall_status"),
             "policy_action": (report.get("policy") or {}).get("action"),
             "active_host_session": report.get("active_host_session"),
+            "paths": report.get("paths"),
+        }
+        print(dump_json(result))
+        return 0
+
+    if args.cmd == "observe-privilege":
+        command = list(args.command)
+        if command and command[0] == "--":
+            command = command[1:]
+        result = observe_privilege_and_cycle(
+            method=args.method,
+            result=args.result,
+            target_user=args.target_user,
+            target_uid=(None if args.target_uid < 0 else args.target_uid),
+            reason=args.reason,
+            command=command,
+        )
+        report = build_report_payload(result["state"], result["tags"], result["busydawg"])
+        result["report"] = {
+            "overall_status": report.get("overall_status"),
+            "policy_action": (report.get("policy") or {}).get("action"),
+            "active_privilege": report.get("active_privilege"),
             "paths": report.get("paths"),
         }
         print(dump_json(result))

@@ -41,6 +41,7 @@ def build_tags(state: dict[str, Any]) -> dict[str, Any]:
     active_qtf_execution = state.get("active_qtf_execution") or {}
     active_package_install = state.get("active_package_install") or {}
     active_host_session = state.get("active_host_session") or {}
+    active_privilege = state.get("active_privilege") or {}
     mindseye_binding = active_mindseye.get("binding") or {}
     web_binding = active_web.get("linked_surface") or {}
     web_trust_reasons = active_web.get("trust_reasons", [])
@@ -162,6 +163,14 @@ def build_tags(state: dict[str, Any]) -> dict[str, Any]:
             tags.append("host_compromise_suspected")
         if active_host_session.get("recovery_hint"):
             tags.append(f"host_recovery_hint:{str(active_host_session['recovery_hint']).lower()}")
+    if active_privilege:
+        tags.append("privilege_active")
+        if active_privilege.get("method"):
+            tags.append(f"privilege_method:{str(active_privilege['method']).lower()}")
+        if active_privilege.get("result"):
+            tags.append(f"privilege_result:{str(active_privilege['result']).lower()}")
+        if active_privilege.get("target_user"):
+            tags.append(f"privilege_target:{str(active_privilege['target_user']).lower()}")
 
     if drift_flags:
         tags.extend(f"drift:{flag}" for flag in drift_flags)
@@ -212,12 +221,16 @@ def build_tags(state: dict[str, Any]) -> dict[str, Any]:
         "active_host_boot_id": active_host_session.get("boot_id"),
         "active_host_compromise_suspected": active_host_session.get("compromise_suspected"),
         "active_host_recovery_hint": active_host_session.get("recovery_hint"),
+        "active_privilege_method": active_privilege.get("method"),
+        "active_privilege_result": active_privilege.get("result"),
+        "active_privilege_target_user": active_privilege.get("target_user"),
         "last_focus_change_ts": state.get("last_focus_change_ts"),
         "last_web_change_ts": state.get("last_web_change_ts"),
         "last_ahk_feedback_ts": state.get("last_ahk_feedback_ts"),
         "last_qtf_execution_ts": state.get("last_qtf_execution_ts"),
         "last_package_install_ts": state.get("last_package_install_ts"),
         "last_host_session_ts": state.get("last_host_session_ts"),
+        "last_privilege_ts": state.get("last_privilege_ts"),
         "trust_status": trust,
         "binding_evidence": binding_evidence,
         "trust_reasons": web_trust_reasons,

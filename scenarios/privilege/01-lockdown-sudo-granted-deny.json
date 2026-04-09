@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "hot_node": "bd_privilege_active",
+    "method": "sudo",
+    "policy_action": "deny",
+    "policy_rule": "host_lockdown_privilege_deny",
+    "result": "granted",
+    "target_user": "root"
+  },
+  "host_session": {
+    "compromise_suspected": true,
+    "recovery_hint": "lockdown_ready",
+    "stage": "gnome-handoff",
+    "suspicion_note": "Session still feels wrong at the first privilege boundary"
+  },
+  "id": "lockdown_sudo_granted_deny",
+  "name": "Granted sudo during a lockdown-ready suspicious host session becomes the hot node and denies",
+  "privilege": {
+    "command": [
+      "/usr/bin/apt",
+      "install",
+      "curl"
+    ],
+    "method": "sudo",
+    "reason": "Testing the first privilege boundary after a suspicious handoff",
+    "result": "granted",
+    "target_uid": 0,
+    "target_user": "root"
+  }
+}

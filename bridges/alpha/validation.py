@@ -8,6 +8,7 @@ from .ahk_feedback import build_ahk_feedback_event
 from .host_session import build_host_session_event
 from .mindseye import build_mindseye_event
 from .models import normalize_event
+from .privilege import build_privilege_event
 from .policy import decide_policy
 from .project_busydawg import build_busydawg_projection
 from .project_tags import build_tags
@@ -166,6 +167,17 @@ def _host_session_event_from_config(config: dict[str, Any]) -> dict[str, Any]:
         compromise_suspected=bool(config.get("compromise_suspected", False)),
         suspicion_note=config.get("suspicion_note", ""),
         recovery_hint=config.get("recovery_hint", "observe_only"),
+    )
+
+
+def _privilege_event_from_config(config: dict[str, Any]) -> dict[str, Any]:
+    return build_privilege_event(
+        method=config.get("method", "sudo"),
+        result=config.get("result", "prompted"),
+        target_user=config.get("target_user", "root"),
+        target_uid=config.get("target_uid", 0),
+        reason=config.get("reason", ""),
+        command=list(config.get("command", [])),
     )
 
 
@@ -696,6 +708,63 @@ def run_host_session_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
 
 def validate_host_session_scenarios(scenarios_dir: Path) -> dict[str, Any]:
     results = [run_host_session_scenario(_load_json(path)) for path in _scenario_files(scenarios_dir)]
+    passed = sum(1 for item in results if item["passed"])
+    return {
+        "scenario_dir": str(scenarios_dir),
+        "scenario_count": len(results),
+        "passed": passed,
+        "failed": len(results) - passed,
+        "results": results,
+    }
+
+
+def run_privilege_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
+    events: list[dict[str, Any]] = []
+    host_session_cfg = scenario.get("host_session")
+    if host_session_cfg:
+        events.append(normalize_event(_host_session_event_from_config(host_session_cfg)))
+    privilege_cfg = scenario.get("privilege", {})
+    events.append(normalize_event(_privilege_event_from_config(privilege_cfg)))
+
+    state = build_state(events)
+    tags = build_tags(state)
+    busydawg = build_busydawg_projection(state, tags)
+    report = build_report_payload(state, tags, busydawg)
+
+    privilege = report.get("active_privilege") or {}
+    policy = report.get("policy") or {}
+    expected = scenario.get("expected", {})
+    failures: list[str] = []
+
+    if "method" in expected and privilege.get("method") != expected["method"]:
+        failures.append(f"method expected {expected['method']} got {privilege.get('method')}")
+    if "result" in expected and privilege.get("result") != expected["result"]:
+        failures.append(f"result expected {expected['result']} got {privilege.get('result')}")
+    if "target_user" in expected and privilege.get("target_user") != expected["target_user"]:
+        failures.append(f"target_user expected {expected['target_user']} got {privilege.get('target_user')}")
+    if "hot_node" in expected and busydawg.get("hot_node") != expected["hot_node"]:
+        failures.append(f"hot_node expected {expected['hot_node']} got {busydawg.get('hot_node')}")
+    failures.extend(_evaluate_policy_expectations(expected, policy))
+
+    return {
+        "id": scenario.get("id", "unnamed"),
+        "name": scenario.get("name", scenario.get("id", "unnamed")),
+        "passed": not failures,
+        "failures": failures,
+        "expected": expected,
+        "actual": {
+            "method": privilege.get("method"),
+            "result": privilege.get("result"),
+            "target_user": privilege.get("target_user"),
+            "hot_node": busydawg.get("hot_node"),
+            "policy_action": policy.get("action"),
+            "policy_rule": policy.get("policy_rule"),
+        },
+    }
+
+
+def validate_privilege_scenarios(scenarios_dir: Path) -> dict[str, Any]:
+    results = [run_privilege_scenario(_load_json(path)) for path in _scenario_files(scenarios_dir)]
     passed = sum(1 for item in results if item["passed"])
     return {
         "scenario_dir": str(scenarios_dir),

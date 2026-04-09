@@ -46,6 +46,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli validate-browser
 python3 -m bridges.alpha.cli validate-policy
 python3 -m bridges.alpha.cli validate-package
+python3 -m bridges.alpha.cli validate-privilege
 python3 -m bridges.alpha.cli validate-qtf
 python3 -m bridges.alpha.cli validate-host-session
 python3 -m bridges.alpha.cli validate-messy

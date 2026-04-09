@@ -11,6 +11,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli validate-browser
 python3 -m bridges.alpha.cli validate-policy
 python3 -m bridges.alpha.cli validate-package
+python3 -m bridges.alpha.cli validate-privilege
 python3 -m bridges.alpha.cli validate-qtf
 python3 -m bridges.alpha.cli validate-host-session
 python3 -m bridges.alpha.cli validate-messy
@@ -107,6 +108,33 @@ What you are looking for:
 - the host session section
 - the recovery hint
 - the breadcrumb preserved in rebuilt state
+
+## Path 6: Privilege Boundary
+
+Record a privilege-boundary breadcrumb:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli observe-privilege \
+  --method sudo \
+  --result prompted \
+  --target-user root \
+  --reason "Testing the sudo boundary" \
+  -- /usr/bin/apt install curl
+```
+
+Then check the report:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli report
+```
+
+What you are looking for:
+
+- the privilege line in the report
+- the recorded command and target user
+- stronger friction when host-session suspicion and privilege escalation line up
 
 ## What To Notice
 

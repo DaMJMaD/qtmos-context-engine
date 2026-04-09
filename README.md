@@ -27,6 +27,7 @@ Today, Alpha can correlate:
 - active desktop surface facts
 - active browser/page facts
 - optional human/context signals from AHK
+- privilege-boundary observations such as `sudo`, `su`, `pkexec`, or `doas`
 - package-install intent
 - offline QTF containment runs
 - host-session breadcrumbs after login or handoff
@@ -72,6 +73,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli validate-browser
 python3 -m bridges.alpha.cli validate-policy
 python3 -m bridges.alpha.cli validate-package
+python3 -m bridges.alpha.cli validate-privilege
 python3 -m bridges.alpha.cli validate-qtf
 python3 -m bridges.alpha.cli validate-host-session
 python3 -m bridges.alpha.cli validate-messy
@@ -141,6 +143,7 @@ There is a fuller walkthrough in [docs/TEST_DRIVE.md](docs/TEST_DRIVE.md).
 - `web.observe`: active browser/page facts
 - `mindseye.vitals`: optional human/context seam from AHK
 - `ahk.feedback`: operator response back into the bus
+- `privilege.observe`: privilege boundary breadcrumbs
 - `package.install.observe`: risky package intent
 - `qtf.execution`: containment execution evidence
 - `host.session.observe`: session handoff breadcrumbs

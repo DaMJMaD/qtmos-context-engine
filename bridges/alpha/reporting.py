@@ -29,6 +29,7 @@ def build_report_payload(
     active_qtf_execution = state.get("active_qtf_execution") or {}
     active_package_install = state.get("active_package_install") or {}
     active_host_session = state.get("active_host_session") or {}
+    active_privilege = state.get("active_privilege") or {}
     binding = tags.get("binding_evidence") or {}
     policy = busydawg.get("policy") or {}
 
@@ -123,6 +124,15 @@ def build_report_payload(
             "suspicion_note": active_host_session.get("suspicion_note"),
             "recovery_hint": active_host_session.get("recovery_hint"),
         },
+        "active_privilege": {
+            "method": active_privilege.get("method"),
+            "result": active_privilege.get("result"),
+            "target_user": active_privilege.get("target_user"),
+            "target_uid": active_privilege.get("target_uid"),
+            "command_text": active_privilege.get("command_text"),
+            "reason": active_privilege.get("reason"),
+            "capture_ts": active_privilege.get("capture_ts"),
+        },
         "timing": {
             "rebuilt_at": state.get("rebuilt_at"),
             "last_focus_change_ts": tags.get("last_focus_change_ts"),
@@ -132,6 +142,7 @@ def build_report_payload(
             "last_qtf_execution_ts": state.get("last_qtf_execution_ts"),
             "last_package_install_ts": state.get("last_package_install_ts"),
             "last_host_session_ts": state.get("last_host_session_ts"),
+            "last_privilege_ts": state.get("last_privilege_ts"),
             "event_count": state.get("event_count", 0),
         },
         "busydawg": {
@@ -170,6 +181,7 @@ def render_report_text(report: dict[str, Any]) -> str:
     qtf = report.get("active_qtf_execution", {})
     package = report.get("active_package_install", {})
     host_session = report.get("active_host_session", {})
+    privilege = report.get("active_privilege", {})
     timing = report.get("timing", {})
     policy = report.get("policy", {})
 
@@ -208,6 +220,18 @@ def render_report_text(report: dict[str, Any]) -> str:
                 + (
                     f" on {host_session.get('current_desktop') or host_session.get('desktop_session') or 'unknown-desktop'}"
                     if host_session
+                    else ""
+                )
+            )
+        ),
+        (
+            "Privilege: "
+            + (
+                f"{privilege.get('method') or 'none'}"
+                + (f" {privilege.get('result')}" if privilege and privilege.get("result") else "")
+                + (
+                    f" -> {privilege.get('command_text')}"
+                    if privilege and privilege.get("command_text")
                     else ""
                 )
             )
@@ -266,6 +290,10 @@ def render_report_text(report: dict[str, Any]) -> str:
         )
         if host_session.get("suspicion_note"):
             lines.append("Suspicion note: " + str(host_session.get("suspicion_note")))
+    if privilege.get("target_user"):
+        lines.append("Privilege target: " + str(privilege.get("target_user")))
+    if privilege.get("reason"):
+        lines.append("Privilege reason: " + str(privilege.get("reason")))
     if package:
         lines.append(
             "Package route: "

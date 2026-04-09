@@ -62,6 +62,7 @@ If a Codex capture can be written, tagged, materialized into state, and reopened
 cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli --help
 python3 -m bridges.alpha.cli emit-surface --surface-id x11:0x3e00004 --process-name codex --window-class "codex | Codex" --window-title "Codex" --focused --trust-status trusted
+python3 -m bridges.alpha.cli observe-privilege --method sudo --result prompted --target-user root -- /usr/bin/apt install curl
 python3 -m bridges.alpha.cli cycle
 python3 -m bridges.alpha.cli ingest-ahk
 python3 -m bridges.alpha.cli ingest-mindseye

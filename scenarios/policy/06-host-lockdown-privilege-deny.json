@@ -1,0 +1,26 @@
+{
+  "expected": {
+    "policy_action": "deny",
+    "policy_rule": "host_lockdown_privilege_deny"
+  },
+  "id": "host_lockdown_privilege_deny",
+  "name": "Granted privilege escalation during a lockdown-ready suspicious host session denies",
+  "state_snapshot": {
+    "active_host_session": {
+      "compromise_suspected": true,
+      "recovery_hint": "lockdown_ready"
+    },
+    "active_privilege": {
+      "method": "sudo",
+      "result": "granted",
+      "target_user": "root"
+    },
+    "rebuilt_at": "2026-04-09T00:00:00Z"
+  },
+  "tags_snapshot": {
+    "binding_evidence": {
+      "link_confidence": "none"
+    },
+    "trust_status": "unknown"
+  }
+}

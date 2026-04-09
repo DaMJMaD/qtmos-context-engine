@@ -8,6 +8,22 @@ from .paths import CONFIG_DIR, POLICY_RULES_JSON
 
 DEFAULT_POLICY_RULES: list[dict[str, Any]] = [
     {
+        "name": "host_lockdown_privilege_deny",
+        "host_compromise_suspected": True,
+        "host_recovery_hint": "lockdown_ready",
+        "privilege_active": True,
+        "privilege_result": "granted",
+        "action": "deny",
+        "reason": "Privilege escalation during a suspected host session should be denied",
+    },
+    {
+        "name": "host_suspected_privilege_review",
+        "host_compromise_suspected": True,
+        "privilege_active": True,
+        "action": "review",
+        "reason": "Privilege boundary during a suspected host session requires review",
+    },
+    {
         "name": "package_qtf_fail_quarantine",
         "package_qtf_requested": True,
         "qtf_success": False,
@@ -129,6 +145,8 @@ def build_policy_context(state: dict[str, Any], tags: dict[str, Any]) -> dict[st
     active_mindseye = state.get("active_mindseye") or {}
     active_package = state.get("active_package_install") or {}
     active_qtf = state.get("active_qtf_execution") or {}
+    active_host_session = state.get("active_host_session") or {}
+    active_privilege = state.get("active_privilege") or {}
     mindseye_binding = active_mindseye.get("binding") or {}
     web_binding = tags.get("binding_evidence") or {}
     mismatch_flags = list(active_web.get("mismatch_flags", [])) + list(active_surface.get("mismatch_flags", []))
@@ -163,6 +181,11 @@ def build_policy_context(state: dict[str, Any], tags: dict[str, Any]) -> dict[st
         "mindseye_binding_confidence_label": mindseye_binding.get("confidence", "none"),
         "context_condition": context_condition,
         "mindseye_condition": context_condition,
+        "host_compromise_suspected": bool(active_host_session.get("compromise_suspected", False)),
+        "host_recovery_hint": active_host_session.get("recovery_hint"),
+        "privilege_active": bool(active_privilege),
+        "privilege_method": active_privilege.get("method"),
+        "privilege_result": active_privilege.get("result"),
         "package_active": bool(active_package),
         "package_manager": active_package.get("manager"),
         "package_operation": active_package.get("operation"),
@@ -181,6 +204,8 @@ def build_policy_context(state: dict[str, Any], tags: dict[str, Any]) -> dict[st
         },
         "active_package": active_package,
         "active_qtf_execution": matched_qtf,
+        "active_host_session": active_host_session,
+        "active_privilege": active_privilege,
         "signals": {
             "sensitive_page": sensitive,
             "mismatch_flags": mismatch_flags,
@@ -212,6 +237,16 @@ def decide_policy(state: dict[str, Any], tags: dict[str, Any]) -> dict[str, Any]
             continue
         allowed_conditions = rule.get("context_condition") or rule.get("mindseye_condition") or []
         if allowed_conditions and context["context_condition"] not in allowed_conditions:
+            continue
+        if "host_compromise_suspected" in rule and bool(rule["host_compromise_suspected"]) != bool(context.get("host_compromise_suspected")):
+            continue
+        if "host_recovery_hint" in rule and rule["host_recovery_hint"] != context.get("host_recovery_hint"):
+            continue
+        if "privilege_active" in rule and bool(rule["privilege_active"]) != bool(context.get("privilege_active")):
+            continue
+        if "privilege_method" in rule and rule["privilege_method"] != context.get("privilege_method"):
+            continue
+        if "privilege_result" in rule and rule["privilege_result"] != context.get("privilege_result"):
             continue
         if "package_active" in rule and bool(rule["package_active"]) != bool(context.get("package_active")):
             continue

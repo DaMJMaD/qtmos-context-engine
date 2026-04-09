@@ -17,6 +17,7 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
     active_qtf_execution = state.get("active_qtf_execution") or {}
     active_package_install = state.get("active_package_install") or {}
     active_host_session = state.get("active_host_session") or {}
+    active_privilege = state.get("active_privilege") or {}
     mindseye_binding = active_mindseye.get("binding") or {}
     binding = active_web.get("linked_surface") or {}
     trust_status = tags.get("trust_status", "unknown")
@@ -133,6 +134,34 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
                 },
             },
         )
+    if active_privilege:
+        privilege_rail = (
+            "suspicious"
+            if active_host_session.get("compromise_suspected") and active_privilege.get("result") == "granted"
+            else "shifted"
+            if active_privilege.get("result") in {"granted", "prompted"}
+            else "0rail"
+        )
+        nodes.insert(
+            2,
+            {
+                "id": "bd_privilege_active",
+                "label": (
+                    f"{active_privilege.get('method') or 'privilege'}:"
+                    f"{active_privilege.get('result') or 'observed'}"
+                ),
+                "kind": "privilege",
+                "rail": privilege_rail,
+                "active": True,
+                "meta": {
+                    "method": active_privilege.get("method"),
+                    "result": active_privilege.get("result"),
+                    "target_user": active_privilege.get("target_user"),
+                    "command_text": active_privilege.get("command_text"),
+                    "reason": active_privilege.get("reason"),
+                },
+            },
+        )
     if active_web:
         nodes.insert(
             2,
@@ -219,6 +248,9 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
             "bd_feedback_active"
             if active_ahk_feedback and str(active_ahk_feedback.get("user_response") or "").lower() in {"decline", "timeout"}
             else
+            "bd_privilege_active"
+            if active_privilege and active_host_session.get("compromise_suspected")
+            else
             "bd_host_session_active"
             if active_host_session and active_host_session.get("compromise_suspected")
             else
@@ -251,6 +283,16 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
         + (
             [{"from": "bd_root", "to": "bd_host_session_active", "kind": "boot"}]
             if active_host_session
+            else []
+        )
+        + (
+            [{"from": "bd_host_session_active", "to": "bd_privilege_active", "kind": "boundary"}]
+            if active_host_session and active_privilege
+            else []
+        )
+        + (
+            [{"from": "bd_root", "to": "bd_privilege_active", "kind": "observe"}]
+            if active_privilege
             else []
         )
         + (
