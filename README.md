@@ -121,8 +121,11 @@ Then open:
 
 - `http://127.0.0.1:8765/alpha/console`
 - `http://127.0.0.1:8765/alpha/showcase`
+- `http://127.0.0.1:8765/alpha/spawn`
 
 Use `/alpha/showcase` when you want all three demo stories rendered side-by-side in a visual + text layout for screenshots, walkthroughs, or quick evaluation.
+
+Use `/alpha/spawn` when you want one prompt fanned out across multiple lanes, with local Codex + Claude automation, manual browser/web lanes, cross-exam prompts, and a final foldback judge.
 
 Print a human-readable trust summary:
 

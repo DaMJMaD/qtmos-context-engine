@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QTMoS Spawn</title>
+  <style>
+    :root {
+      --bg-0: #0e0b09;
+      --bg-1: #15110f;
+      --bg-2: #1c1714;
+      --panel: rgba(27, 22, 19, 0.88);
+      --panel-strong: rgba(34, 28, 23, 0.96);
+      --panel-soft: rgba(54, 44, 36, 0.5);
+      --text: #f4ece2;
+      --muted: #b8aa97;
+      --line: rgba(222, 189, 132, 0.16);
+      --gold: #dfbf7c;
+      --gold-2: #f1dca7;
+      --ember: #d98955;
+      --green: #73c18c;
+      --blue: #79b7d8;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+      --mono: "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      --sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: dark; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(223, 191, 124, 0.11), transparent 25%),
+        radial-gradient(circle at 15% 14%, rgba(217, 137, 85, 0.08), transparent 22%),
+        radial-gradient(circle at 82% 18%, rgba(121, 183, 216, 0.08), transparent 18%),
+        linear-gradient(180deg, #16110f 0%, var(--bg-2) 36%, var(--bg-0) 100%);
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.85), transparent 94%);
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1700px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    .toolbar,
+    .toolbar-left,
+    .toolbar-right,
+    .hero-top,
+    .summary-grid,
+    .spawn-actions,
+    .lane-top,
+    .lane-actions,
+    .foldback-top,
+    .foldback-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar {
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .toolbar-link,
+    button,
+    .chip,
+    .tone,
+    select,
+    textarea,
+    input {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .toolbar-link,
+    button {
+      appearance: none;
+      text-decoration: none;
+      cursor: pointer;
+      font: inherit;
+      color: var(--text);
+      padding: 11px 15px;
+      background: linear-gradient(180deg, rgba(223, 191, 124, 0.17), rgba(223, 191, 124, 0.04));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    button:hover,
+    .toolbar-link:hover {
+      transform: translateY(-1px);
+      border-color: rgba(223, 191, 124, 0.45);
+      background: linear-gradient(180deg, rgba(223, 191, 124, 0.24), rgba(223, 191, 124, 0.08));
+    }
+
+    button.secondary,
+    .toolbar-link.secondary {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .chip,
+    .tone {
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .tone.local { color: var(--green); }
+    .tone.manual { color: var(--gold); }
+    .tone.foldback { color: var(--blue); }
+
+    .hero,
+    .panel,
+    .lane-card,
+    .foldback-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      padding: 28px;
+      margin-bottom: 18px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(223, 191, 124, 0.15), transparent 25%),
+        linear-gradient(140deg, rgba(223, 191, 124, 0.08), rgba(121, 183, 216, 0.05) 55%, rgba(255,255,255,0.02)),
+        var(--panel-strong);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -14% -58% 38%;
+      height: 320px;
+      background: radial-gradient(circle, rgba(223, 191, 124, 0.17), transparent 68%);
+      filter: blur(14px);
+      pointer-events: none;
+    }
+
+    .kicker {
+      color: var(--gold);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 7vw, 5.7rem);
+      line-height: 0.88;
+      letter-spacing: 0.02em;
+      color: var(--gold-2);
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 12px;
+      max-width: 760px;
+    }
+
+    .summary {
+      max-width: 900px;
+      color: var(--text);
+      font-size: clamp(1rem, 1.3vw, 1.16rem);
+      line-height: 1.5;
+    }
+
+    .hero-top {
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .sigil {
+      position: relative;
+      width: min(380px, 100%);
+      aspect-ratio: 1 / 1;
+      margin: 8px auto 0;
+    }
+
+    .triangle-line {
+      position: absolute;
+      background: linear-gradient(180deg, rgba(244, 236, 226, 0.95), rgba(223, 191, 124, 0.85));
+      transform-origin: center;
+      border-radius: 999px;
+      box-shadow: 0 0 18px rgba(244, 236, 226, 0.08);
+    }
+
+    .triangle-line.a { left: 53px; top: 150px; width: 156px; height: 6px; transform: rotate(-59deg); }
+    .triangle-line.b { right: 53px; top: 150px; width: 156px; height: 6px; transform: rotate(59deg); }
+    .triangle-line.c { left: 87px; right: 87px; bottom: 84px; height: 6px; }
+
+    .node {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.06);
+      border: 4px solid rgba(244, 236, 226, 0.95);
+      font-family: var(--serif);
+      font-size: 2.6rem;
+      line-height: 1;
+      box-shadow: 0 0 0 10px rgba(223, 191, 124, 0.06);
+    }
+
+    .node.top { top: 24px; left: 50%; transform: translateX(-50%); }
+    .node.left { bottom: 48px; left: 44px; }
+    .node.right { bottom: 48px; right: 44px; }
+
+    .formula {
+      position: absolute;
+      inset: 46% auto auto 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3vw, 3rem);
+      color: rgba(244, 236, 226, 0.95);
+      letter-spacing: 0.04em;
+    }
+
+    .arc {
+      position: absolute;
+      border: 4px solid transparent;
+      border-top-color: rgba(223, 191, 124, 0.75);
+      border-radius: 50%;
+      width: 92px;
+      height: 92px;
+      opacity: 0.85;
+    }
+
+    .arc.left { left: 2px; top: 140px; transform: rotate(-70deg); }
+    .arc.right { right: 2px; top: 140px; transform: rotate(70deg); }
+    .arc.bottom { left: 50%; bottom: 18px; transform: translateX(-50%) rotate(180deg); width: 102px; height: 102px; }
+
+    .sigil-label {
+      position: absolute;
+      color: var(--gold);
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.2;
+      max-width: 120px;
+      text-align: center;
+    }
+
+    .sigil-label.spawn { top: -4px; left: 50%; transform: translateX(-50%); }
+    .sigil-label.spark { top: 112px; left: -10px; }
+    .sigil-label.super { bottom: -2px; left: -4px; }
+    .sigil-label.fold { top: 112px; right: -10px; }
+    .sigil-label.fold-2 { bottom: -2px; right: -8px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .summary-card,
+    .lane-card,
+    .foldback-card,
+    .panel {
+      border-radius: 24px;
+      padding: 18px;
+    }
+
+    .summary-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 8px;
+      min-height: 112px;
+    }
+
+    .summary-card .label,
+    .field-label,
+    .section-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .summary-card .value {
+      font-size: 1.16rem;
+      font-weight: 700;
+    }
+
+    .summary-card .subvalue {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+    }
+
+    textarea,
+    input,
+    select {
+      width: 100%;
+      background: rgba(8, 7, 6, 0.55);
+      color: var(--text);
+      padding: 12px 14px;
+      font: inherit;
+      min-height: 48px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.48;
+    }
+
+    textarea.small {
+      min-height: 96px;
+    }
+
+    textarea.response {
+      min-height: 168px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(223, 191, 124, 0.55);
+      box-shadow: 0 0 0 4px rgba(223, 191, 124, 0.08);
+    }
+
+    .spawn-actions {
+      justify-content: flex-start;
+    }
+
+    .lane-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .lane-card {
+      display: grid;
+      gap: 14px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
+        var(--panel);
+    }
+
+    .lane-card.manual {
+      border-color: rgba(223, 191, 124, 0.24);
+    }
+
+    .lane-card.local {
+      border-color: rgba(115, 193, 140, 0.24);
+    }
+
+    .lane-top {
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .lane-copy {
+      display: grid;
+      gap: 6px;
+      max-width: 42ch;
+    }
+
+    .lane-title {
+      font-size: 1.28rem;
+      line-height: 1.14;
+      font-family: var(--serif);
+      color: var(--gold-2);
+    }
+
+    .lane-summary {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .lane-actions,
+    .foldback-actions {
+      justify-content: flex-start;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .mono {
+      font-family: var(--mono);
+      word-break: break-word;
+    }
+
+    .foldback-card {
+      display: grid;
+      gap: 14px;
+      background:
+        linear-gradient(180deg, rgba(121, 183, 216, 0.05), rgba(223, 191, 124, 0.03)),
+        var(--panel);
+    }
+
+    .foldback-top {
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .rubric {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rubric .chip {
+      color: var(--gold);
+      background: rgba(223, 191, 124, 0.05);
+    }
+
+    .status {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .status.ok { color: var(--green); }
+    .status.error { color: #e88989; }
+    .status.busy { color: var(--blue); }
+
+    .footer-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.48;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace-grid,
+      .lane-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-top {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="chip">QTMoS Spawn Workspace</div>
+        <div class="chip mono">/alpha/spawn</div>
+        <div class="chip" id="spawnStatus">Loading workspace</div>
+      </div>
+      <div class="toolbar-right">
+        <a class="toolbar-link secondary" href="/alpha/console">Open Console</a>
+        <a class="toolbar-link secondary" href="/alpha/showcase">Open Showcase</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="kicker">Spawn Duality</div>
+          <h1>One Prompt. Four Lanes. One Foldback.</h1>
+          <p class="summary">
+            This is the construction room for your split-brain workflow: seed one shared prompt, let each lane answer on its own,
+            force a cross-exam instead of a groupthink merge, then run a final foldback verdict on the points that actually mattered.
+          </p>
+        </div>
+        <div class="sigil" aria-hidden="true">
+          <div class="sigil-label spawn">Spawn</div>
+          <div class="sigil-label spark">Duality<br>Spark</div>
+          <div class="sigil-label super">Superstate<br>0</div>
+          <div class="sigil-label fold">Total<br>Foldback</div>
+          <div class="sigil-label fold-2">Total<br>Foldback</div>
+          <div class="triangle-line a"></div>
+          <div class="triangle-line b"></div>
+          <div class="triangle-line c"></div>
+          <div class="arc left"></div>
+          <div class="arc right"></div>
+          <div class="arc bottom"></div>
+          <div class="node top">n</div>
+          <div class="node left">2</div>
+          <div class="node right">Θ</div>
+          <div class="formula" id="formulaText">2×1×2</div>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="label">Automated Lanes</div>
+          <div class="value" id="autoCount">2 local lanes</div>
+          <div class="subvalue">Codex and Claude can run directly from this page.</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Manual Lanes</div>
+          <div class="value" id="manualCount">2 browser lanes</div>
+          <div class="subvalue">Web GPT and Claude Web stay as paste-back lanes until you wire browser automation or APIs.</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Flow</div>
+          <div class="value">Seed -> Cross -> Foldback</div>
+          <div class="subvalue">Independent first pass, adversarial second pass, one judged synthesis.</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Session</div>
+          <div class="value" id="sessionName">Spawn Workspace</div>
+          <div class="subvalue mono" id="updatedAt">waiting for state</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <div class="panel">
+        <div class="section-label">Shared Input</div>
+        <textarea id="sharedPrompt" placeholder="Write the one prompt you want to fan out to every lane."></textarea>
+        <div class="spawn-actions">
+          <button id="seedAllBtn">Seed Round One Prompts</button>
+          <button class="secondary" id="crossAllBtn">Build Cross-Exam Prompts</button>
+          <button class="secondary" id="foldbackBtn">Build Foldback Prompt</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="section-label">Session Notes</div>
+        <textarea id="sessionNotes" class="small" placeholder="Keep a short operator note, research angle, or caution here."></textarea>
+        <div class="spawn-actions">
+          <button id="saveBtn">Save Workspace</button>
+          <button class="secondary" id="resetBtn">Reset Workspace</button>
+        </div>
+        <div class="subtle">
+          This page persists its workspace to the local QTMoS runtime so you can refresh or come back later without losing the lane prompts and pasted replies.
+        </div>
+      </div>
+    </section>
+
+    <section class="lane-grid" id="laneGrid"></section>
+
+    <section class="foldback-card">
+      <div class="foldback-top">
+        <div class="lane-copy">
+          <div class="section-label">Final Foldback</div>
+          <h2 class="lane-title">Judge the disagreement, not just the prettiest paragraph</h2>
+          <p class="lane-summary">
+            When round one and cross-exam are in, build a final prompt that scores clarity, feasibility, risk honesty, and novelty.
+            Then run the judge locally or paste the foldback prompt into a heavier browser model.
+          </p>
+        </div>
+        <div class="tone foldback">Foldback Judge</div>
+      </div>
+      <div class="rubric" id="rubric"></div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label class="field-label" for="judgeProvider">Judge Provider</label>
+          <select id="judgeProvider"></select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="judgeModel">Judge Model</label>
+          <select id="judgeModel"></select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="judgePrompt">Foldback Prompt</label>
+          <textarea id="judgePrompt"></textarea>
+        </div>
+        <div class="foldback-actions">
+          <button id="runJudgeBtn">Run Judge</button>
+          <button class="secondary" id="copyJudgeBtn">Copy Foldback Prompt</button>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="judgeResponse">Foldback Verdict</label>
+          <textarea id="judgeResponse" class="response"></textarea>
+        </div>
+      </div>
+      <p class="footer-note" id="footerNote">
+        Tip: local lanes are ideal for fast iteration; browser lanes are where you can bring in the web-heavy models and compare them against your local pair.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    let workspace = null;
+    let catalog = null;
+    const spawnStatus = document.getElementById("spawnStatus");
+    const laneGrid = document.getElementById("laneGrid");
+    const sharedPrompt = document.getElementById("sharedPrompt");
+    const sessionNotes = document.getElementById("sessionNotes");
+    const sessionName = document.getElementById("sessionName");
+    const updatedAt = document.getElementById("updatedAt");
+    const formulaText = document.getElementById("formulaText");
+    const judgeProvider = document.getElementById("judgeProvider");
+    const judgeModel = document.getElementById("judgeModel");
+    const judgePrompt = document.getElementById("judgePrompt");
+    const judgeResponse = document.getElementById("judgeResponse");
+    const rubric = document.getElementById("rubric");
+
+    function escapeHtml(value = "") {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function setStatus(text, tone = "") {
+      spawnStatus.textContent = text;
+      spawnStatus.className = `chip ${tone}`.trim();
+    }
+
+    function laneDefinition(laneId) {
+      return (catalog.lanes || []).find((lane) => lane.id === laneId);
+    }
+
+    function judgeOption(provider) {
+      return (catalog.judge_options || []).find((item) => item.provider === provider);
+    }
+
+    function laneModelOptions(definition, current) {
+      return (definition.model_options || []).map((value) => {
+        const selected = value === current ? "selected" : "";
+        return `<option value="${escapeHtml(value)}" ${selected}>${escapeHtml(value)}</option>`;
+      }).join("");
+    }
+
+    function buildSeedPrompt(laneId) {
+      const lane = workspace.lanes[laneId];
+      const definition = laneDefinition(laneId);
+      const shared = (workspace.shared_prompt || "").trim();
+      if (!shared) {
+        return "";
+      }
+      const modeLine = definition.kind === "local"
+        ? "You are one lane in a local multi-agent spawn run."
+        : "You are one external browser lane in a multi-agent spawn run.";
+      return [
+        "Shared prompt:",
+        shared,
+        "",
+        "Lane:",
+        `${definition.label} (${definition.kind})`,
+        modeLine,
+        definition.tagline,
+        "",
+        "Answer independently.",
+        "Return:",
+        "1. your best answer",
+        "2. the main risk or blind spot",
+        "3. the next action you would actually take",
+        "",
+        "Keep it grounded, specific, and readable."
+      ].join("\n");
+    }
+
+    function buildCrossPrompt(laneId) {
+      const lane = workspace.lanes[laneId];
+      const definition = laneDefinition(laneId);
+      const peers = Object.values(workspace.lanes)
+        .filter((item) => item.id !== laneId && (item.seed_response || "").trim())
+        .map((item) => {
+          return `[${item.label}]\n${item.seed_response.trim()}`;
+        });
+
+      return [
+        "Shared prompt:",
+        (workspace.shared_prompt || "").trim(),
+        "",
+        `Your lane: ${definition.label}`,
+        "",
+        "Your first-pass answer:",
+        (lane.seed_response || "").trim() || "[missing]",
+        "",
+        "Peer first-pass answers:",
+        peers.length ? peers.join("\n\n") : "[No peer answers pasted yet.]",
+        "",
+        "Now cross-examine the others.",
+        "Return:",
+        "1. what another lane saw better than you",
+        "2. what you still disagree with and why",
+        "3. your revised answer after seeing the other lanes",
+        "",
+        "Do not pretend everyone agrees if they do not."
+      ].join("\n");
+    }
+
+    function buildFoldbackPrompt() {
+      const seedBlocks = Object.values(workspace.lanes)
+        .filter((lane) => (lane.seed_response || "").trim())
+        .map((lane) => `[${lane.label} | round one]\n${lane.seed_response.trim()}`);
+
+      const crossBlocks = Object.values(workspace.lanes)
+        .filter((lane) => (lane.cross_response || "").trim())
+        .map((lane) => `[${lane.label} | cross-exam]\n${lane.cross_response.trim()}`);
+
+      return [
+        "You are the foldback judge for a QTMoS Spawn run.",
+        "",
+        "Shared prompt:",
+        (workspace.shared_prompt || "").trim(),
+        "",
+        "Round one answers:",
+        seedBlocks.length ? seedBlocks.join("\n\n") : "[No round one answers yet.]",
+        "",
+        "Cross-exam answers:",
+        crossBlocks.length ? crossBlocks.join("\n\n") : "[No cross-exam answers yet.]",
+        "",
+        "Evaluate the discussion on these points:",
+        "- Clarity",
+        "- Feasibility",
+        "- Risk Honesty",
+        "- Novelty",
+        "",
+        "Return in these sections:",
+        "Verdict:",
+        "Best lane right now:",
+        "Where they agree:",
+        "Where they conflict:",
+        "Recommended next move:",
+        "Scores:",
+        "- Clarity: x/10",
+        "- Feasibility: x/10",
+        "- Risk Honesty: x/10",
+        "- Novelty: x/10",
+      ].join("\n");
+    }
+
+    function laneCard(laneId) {
+      const lane = workspace.lanes[laneId];
+      const definition = laneDefinition(laneId);
+      const actionLabel = definition.kind === "local" ? "Run Local" : "Copy Prompt";
+      const crossActionLabel = definition.kind === "local" ? "Run Cross-Exam" : "Copy Cross Prompt";
+
+      return `
+        <section class="lane-card ${escapeHtml(definition.kind)}">
+          <div class="lane-top">
+            <div class="lane-copy">
+              <div class="section-label">${escapeHtml(definition.kind)} lane</div>
+              <h3 class="lane-title">${escapeHtml(definition.label)}</h3>
+              <p class="lane-summary">${escapeHtml(definition.tagline)}</p>
+            </div>
+            <div class="tone ${escapeHtml(definition.kind)}">${escapeHtml(lane.status || definition.kind)}</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="model-${escapeHtml(laneId)}">Model</label>
+            <select id="model-${escapeHtml(laneId)}" data-lane="${escapeHtml(laneId)}" data-field="model">
+              ${laneModelOptions(definition, lane.model)}
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="seed-prompt-${escapeHtml(laneId)}">Round One Prompt</label>
+            <textarea id="seed-prompt-${escapeHtml(laneId)}" class="small" data-lane="${escapeHtml(laneId)}" data-field="seed_prompt">${escapeHtml(lane.seed_prompt || "")}</textarea>
+          </div>
+          <div class="lane-actions">
+            <button data-action="reseed" data-lane="${escapeHtml(laneId)}">Rebuild Prompt</button>
+            <button class="secondary" data-action="seed-run" data-lane="${escapeHtml(laneId)}">${escapeHtml(actionLabel)}</button>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="seed-response-${escapeHtml(laneId)}">Round One Response</label>
+            <textarea id="seed-response-${escapeHtml(laneId)}" class="response" data-lane="${escapeHtml(laneId)}" data-field="seed_response">${escapeHtml(lane.seed_response || "")}</textarea>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="cross-prompt-${escapeHtml(laneId)}">Cross-Exam Prompt</label>
+            <textarea id="cross-prompt-${escapeHtml(laneId)}" class="small" data-lane="${escapeHtml(laneId)}" data-field="cross_prompt">${escapeHtml(lane.cross_prompt || "")}</textarea>
+          </div>
+          <div class="lane-actions">
+            <button data-action="recross" data-lane="${escapeHtml(laneId)}">Build Cross Prompt</button>
+            <button class="secondary" data-action="cross-run" data-lane="${escapeHtml(laneId)}">${escapeHtml(crossActionLabel)}</button>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="cross-response-${escapeHtml(laneId)}">Cross-Exam Response</label>
+            <textarea id="cross-response-${escapeHtml(laneId)}" class="response" data-lane="${escapeHtml(laneId)}" data-field="cross_response">${escapeHtml(lane.cross_response || "")}</textarea>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="notes-${escapeHtml(laneId)}">Lane Notes</label>
+            <textarea id="notes-${escapeHtml(laneId)}" class="small" data-lane="${escapeHtml(laneId)}" data-field="notes">${escapeHtml(lane.notes || "")}</textarea>
+          </div>
+          <p class="subtle">${escapeHtml(definition.copy_hint)}</p>
+          <p class="subtle mono">${escapeHtml(lane.last_error || "")}</p>
+        </section>
+      `;
+    }
+
+    function renderJudgeOptions() {
+      judgeProvider.innerHTML = (catalog.judge_options || []).map((item) => {
+        const selected = item.provider === workspace.judge.provider ? "selected" : "";
+        return `<option value="${escapeHtml(item.provider)}" ${selected}>${escapeHtml(item.label)}</option>`;
+      }).join("");
+
+      const option = judgeOption(workspace.judge.provider);
+      judgeModel.innerHTML = (option.model_options || []).map((value) => {
+        const selected = value === workspace.judge.model ? "selected" : "";
+        return `<option value="${escapeHtml(value)}" ${selected}>${escapeHtml(value)}</option>`;
+      }).join("");
+    }
+
+    function render() {
+      if (!workspace || !catalog) return;
+
+      sessionName.textContent = workspace.session_name || "Spawn Workspace";
+      updatedAt.textContent = workspace.updated_at || "waiting";
+      sharedPrompt.value = workspace.shared_prompt || "";
+      sessionNotes.value = workspace.notes || "";
+      formulaText.textContent = workspace.formula || "2×1×2";
+      judgePrompt.value = workspace.judge.prompt || "";
+      judgeResponse.value = workspace.judge.response || "";
+
+      rubric.innerHTML = (catalog.rubric || []).map((item) => `<div class="chip">${escapeHtml(item.label)}</div>`).join("");
+      renderJudgeOptions();
+
+      laneGrid.innerHTML = Object.keys(workspace.lanes).map(laneCard).join("");
+
+      document.querySelectorAll("[data-field]").forEach((node) => {
+        node.addEventListener("input", onFieldInput);
+        node.addEventListener("change", onFieldInput);
+      });
+
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", onLaneAction);
+      });
+    }
+
+    function onFieldInput(event) {
+      const laneId = event.target.dataset.lane;
+      const field = event.target.dataset.field;
+      if (!laneId || !field) return;
+      workspace.lanes[laneId][field] = event.target.value;
+      workspace.updated_at = new Date().toISOString();
+    }
+
+    async function saveWorkspace() {
+      workspace.shared_prompt = sharedPrompt.value;
+      workspace.notes = sessionNotes.value;
+      workspace.judge.provider = judgeProvider.value;
+      workspace.judge.model = judgeModel.value;
+      workspace.judge.prompt = judgePrompt.value;
+      workspace.judge.response = judgeResponse.value;
+
+      setStatus("Saving workspace", "busy");
+      const response = await fetch("/alpha/spawn/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspace }),
+      });
+      const payload = await response.json();
+      workspace = payload.workspace;
+      render();
+      setStatus("Workspace saved", "ok");
+    }
+
+    async function resetWorkspace() {
+      setStatus("Resetting workspace", "busy");
+      const response = await fetch("/alpha/spawn/reset", { method: "POST" });
+      const payload = await response.json();
+      workspace = payload.workspace;
+      render();
+      setStatus("Workspace reset", "ok");
+    }
+
+    function seedAll() {
+      workspace.shared_prompt = sharedPrompt.value;
+      Object.keys(workspace.lanes).forEach((laneId) => {
+        workspace.lanes[laneId].seed_prompt = buildSeedPrompt(laneId);
+        workspace.lanes[laneId].status = "seeded";
+        workspace.lanes[laneId].updated_at = new Date().toISOString();
+      });
+      render();
+      setStatus("Round one prompts built", "ok");
+    }
+
+    function buildCrossAll() {
+      Object.keys(workspace.lanes).forEach((laneId) => {
+        workspace.lanes[laneId].cross_prompt = buildCrossPrompt(laneId);
+        workspace.lanes[laneId].status = "cross-ready";
+        workspace.lanes[laneId].updated_at = new Date().toISOString();
+      });
+      render();
+      setStatus("Cross-exam prompts built", "ok");
+    }
+
+    function buildFoldback() {
+      workspace.judge.prompt = buildFoldbackPrompt();
+      workspace.judge.status = "foldback-ready";
+      workspace.judge.updated_at = new Date().toISOString();
+      render();
+      setStatus("Foldback prompt built", "ok");
+    }
+
+    async function copyText(text, successText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus(successText, "ok");
+      } catch (error) {
+        setStatus(`Clipboard failed: ${error}`, "error");
+      }
+    }
+
+    async function invokeProvider(provider, model, prompt) {
+      const response = await fetch("/alpha/spawn/invoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, model, prompt }),
+      });
+      return response.json();
+    }
+
+    async function runLanePrompt(laneId, phase) {
+      const lane = workspace.lanes[laneId];
+      const definition = laneDefinition(laneId);
+      const promptField = phase === "seed" ? "seed_prompt" : "cross_prompt";
+      const responseField = phase === "seed" ? "seed_response" : "cross_response";
+      const prompt = lane[promptField];
+
+      if (definition.kind !== "local") {
+        await copyText(prompt, `${definition.label} prompt copied`);
+        return;
+      }
+
+      lane.status = "running";
+      render();
+      setStatus(`Running ${definition.label}`, "busy");
+
+      const result = await invokeProvider(definition.provider, lane.model, prompt);
+      lane[responseField] = result.response || "";
+      lane.status = result.ok ? "completed" : "error";
+      lane.last_error = result.ok ? "" : (result.stderr || "Lane failed.");
+      lane.updated_at = result.ts || new Date().toISOString();
+      render();
+      setStatus(result.ok ? `${definition.label} finished` : `${definition.label} failed`, result.ok ? "ok" : "error");
+      await saveWorkspace();
+    }
+
+    async function runJudge() {
+      workspace.judge.provider = judgeProvider.value;
+      workspace.judge.model = judgeModel.value;
+      workspace.judge.prompt = judgePrompt.value;
+      workspace.judge.status = "running";
+      render();
+      setStatus("Running foldback judge", "busy");
+
+      const result = await invokeProvider(workspace.judge.provider, workspace.judge.model, workspace.judge.prompt);
+      workspace.judge.response = result.response || "";
+      workspace.judge.status = result.ok ? "completed" : "error";
+      workspace.judge.last_error = result.ok ? "" : (result.stderr || "Judge failed.");
+      workspace.judge.updated_at = result.ts || new Date().toISOString();
+      render();
+      setStatus(result.ok ? "Foldback verdict ready" : "Judge failed", result.ok ? "ok" : "error");
+      await saveWorkspace();
+    }
+
+    async function onLaneAction(event) {
+      const laneId = event.target.dataset.lane;
+      const action = event.target.dataset.action;
+      if (!laneId || !action) return;
+
+      if (action === "reseed") {
+        workspace.lanes[laneId].seed_prompt = buildSeedPrompt(laneId);
+        workspace.lanes[laneId].status = "seeded";
+        render();
+        return;
+      }
+
+      if (action === "recross") {
+        workspace.lanes[laneId].cross_prompt = buildCrossPrompt(laneId);
+        workspace.lanes[laneId].status = "cross-ready";
+        render();
+        return;
+      }
+
+      if (action === "seed-run") {
+        await runLanePrompt(laneId, "seed");
+        return;
+      }
+
+      if (action === "cross-run") {
+        await runLanePrompt(laneId, "cross");
+      }
+    }
+
+    async function loadWorkspace() {
+      setStatus("Loading workspace", "busy");
+      const response = await fetch("/alpha/spawn.json", { cache: "no-store" });
+      const payload = await response.json();
+      workspace = payload.workspace;
+      catalog = payload.catalog;
+      render();
+      setStatus("Spawn ready", "ok");
+    }
+
+    document.getElementById("seedAllBtn").addEventListener("click", seedAll);
+    document.getElementById("crossAllBtn").addEventListener("click", buildCrossAll);
+    document.getElementById("foldbackBtn").addEventListener("click", buildFoldback);
+    document.getElementById("saveBtn").addEventListener("click", saveWorkspace);
+    document.getElementById("resetBtn").addEventListener("click", resetWorkspace);
+    document.getElementById("runJudgeBtn").addEventListener("click", runJudge);
+    document.getElementById("copyJudgeBtn").addEventListener("click", () => copyText(judgePrompt.value, "Foldback prompt copied"));
+    judgeProvider.addEventListener("change", () => {
+      workspace.judge.provider = judgeProvider.value;
+      const option = judgeOption(workspace.judge.provider);
+      workspace.judge.model = option.model_options[0];
+      render();
+    });
+    judgeModel.addEventListener("change", () => {
+      workspace.judge.model = judgeModel.value;
+    });
+
+    loadWorkspace().catch((error) => {
+      console.error(error);
+      setStatus(`Spawn offline: ${error}`, "error");
+    });
+  </script>
+</body>
+</html>

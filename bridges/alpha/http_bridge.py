@@ -11,6 +11,7 @@ from .models import dump_json
 from .paths import PROJECT_ROOT
 from .reporting import build_report_payload, load_report_payload
 from .showcase import build_showcase_catalog
+from .spawn import build_spawn_payload, invoke_spawn_provider, reset_spawn_workspace, save_spawn_workspace
 from .surface import append_surface_and_cycle, load_previous_surface
 from .web import append_web_and_cycle, load_previous_web
 
@@ -55,6 +56,12 @@ class QTMoSBridgeHandler(BaseHTTPRequestHandler):
         if clean_path in {"/alpha/showcase", "/alpha/showcase/"}:
             _file_response(self, HTTPStatus.OK, "hosts/trust-console/showcase.html")
             return
+        if clean_path in {"/alpha/spawn.json"}:
+            _json_response(self, HTTPStatus.OK, build_spawn_payload())
+            return
+        if clean_path in {"/alpha/spawn", "/alpha/spawn/"}:
+            _file_response(self, HTTPStatus.OK, "hosts/trust-console/spawn.html")
+            return
         if clean_path in {"/", "/index.html", "/alpha", "/alpha/", "/alpha/console", "/alpha/console/"}:
             _file_response(self, HTTPStatus.OK, "hosts/trust-console/index.html")
             return
@@ -85,6 +92,12 @@ class QTMoSBridgeHandler(BaseHTTPRequestHandler):
                 result = self._handle_web_observe(payload)
             elif self.path == "/alpha/surface-observe":
                 result = self._handle_surface_observe(payload)
+            elif self.path == "/alpha/spawn/save":
+                result = self._handle_spawn_save(payload)
+            elif self.path == "/alpha/spawn/reset":
+                result = self._handle_spawn_reset()
+            elif self.path == "/alpha/spawn/invoke":
+                result = self._handle_spawn_invoke(payload)
             else:
                 _json_response(
                     self,
@@ -165,6 +178,28 @@ class QTMoSBridgeHandler(BaseHTTPRequestHandler):
             "active_surface": result["state"].get("active_surface"),
             "ahk_hook": ahk_hook,
         }
+
+    def _handle_spawn_save(self, payload: dict[str, Any]) -> dict[str, Any]:
+        workspace = save_spawn_workspace(payload.get("workspace"))
+        return {
+            "ok": True,
+            "workspace": workspace,
+        }
+
+    def _handle_spawn_reset(self) -> dict[str, Any]:
+        workspace = reset_spawn_workspace()
+        return {
+            "ok": True,
+            "workspace": workspace,
+        }
+
+    def _handle_spawn_invoke(self, payload: dict[str, Any]) -> dict[str, Any]:
+        result = invoke_spawn_provider(
+            provider=str(payload.get("provider", "")),
+            prompt=str(payload.get("prompt", "")),
+            model=str(payload.get("model", "")),
+        )
+        return result
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
