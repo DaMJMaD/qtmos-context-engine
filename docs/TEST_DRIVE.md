@@ -2,7 +2,35 @@
 
 This is the quickest way to get a feel for QTMoS without wiring every observer lane on day one.
 
-## Path 1: Zero-Setup Trust And Policy Sanity Check
+## Path 1: One-Command Showcase
+
+Run the built-in showcase story:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli demo-alpha
+```
+
+What this shows:
+
+- phase one: a clean local package runs inside QTF and still stays in `review`
+- phase two: an explicit EXT request is recorded and policy moves to `allow`
+- containment success and promotion permission are shown as separate decisions
+
+Other showcase stories:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli demo-alpha --story registry-review
+python3 -m bridges.alpha.cli demo-alpha --story lockdown-deny
+```
+
+Those give you two more sharp stories:
+
+- a registry package still stays in `review` even after EXT is requested
+- a suspicious `lockdown_ready` host session can deny promotion at the EXT boundary
+
+## Path 2: Zero-Setup Trust And Policy Sanity Check
 
 Run the built-in validation packs:
 
@@ -26,7 +54,7 @@ What this proves:
 - EXT promotion requests behave like explicit boundaries instead of silent promotion
 - messy mixed-signal scenarios still land in understandable outcomes
 
-## Path 2: Live Local Console
+## Path 3: Live Local Console
 
 Start the HTTP bridge:
 
@@ -48,7 +76,7 @@ python3 -m bridges.alpha.cli report
 
 This is the fastest way to see how QTMoS wants to explain itself to a person instead of only to the event bus.
 
-## Path 3: Browser-Surface Binding
+## Path 4: Browser-Surface Binding
 
 Load the unpacked extension from:
 
@@ -67,7 +95,7 @@ What you are looking for:
 - a browser origin in the report
 - a trust summary that reflects the bind
 
-## Path 4: Package Action Into Containment
+## Path 5: Package Action Into Containment
 
 If you have the QTF dependencies available, try a local package action:
 
@@ -106,7 +134,7 @@ What you are looking for next:
 - a policy answer that reflects the package source and the matched QTF evidence
 - a clearer difference between containment success and promotion permission
 
-## Path 5: Host Session Breadcrumb
+## Path 6: Host Session Breadcrumb
 
 Emit a session breadcrumb manually:
 
@@ -128,7 +156,7 @@ What you are looking for:
 - the recovery hint
 - the breadcrumb preserved in rebuilt state
 
-## Path 6: Privilege Boundary
+## Path 7: Privilege Boundary
 
 Record a privilege-boundary breadcrumb:
 

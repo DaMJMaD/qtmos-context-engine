@@ -39,6 +39,7 @@ from .qtf import run_qtf_command
 from .reporting import build_report_payload, dump_report_json, render_report_text
 from .rebuild_state import rebuild_state
 from .reset_runtime import reset_alpha
+from .showcase import render_showcase_text, run_showcase_demo
 from .surface import append_surface_event, build_surface_event, load_previous_surface
 from .validation import (
     validate_ahk_feedback_scenarios,
@@ -223,6 +224,15 @@ def build_parser() -> argparse.ArgumentParser:
     cycle_cmd.add_argument("--ahk-feedback-channel", default="ahk-feedback", help="AHK feedback channel name")
     report_cmd = sub.add_parser("report", help="Print a short human-readable Alpha trust report")
     report_cmd.add_argument("--json", action="store_true", help="Print the report as JSON")
+    demo_cmd = sub.add_parser("demo-alpha", help="Run a one-command showcase story and print the before/after reports")
+    demo_cmd.add_argument(
+        "--story",
+        choices=["local-ext", "registry-review", "lockdown-deny"],
+        default="local-ext",
+        help="Showcase story to run",
+    )
+    demo_cmd.add_argument("--archive", action="store_true", help="Archive current runtime files before resetting for the showcase")
+    demo_cmd.add_argument("--json", action="store_true", help="Print the showcase payload as JSON")
     validate_cmd = sub.add_parser("validate-browser", help="Run browser trust scenarios in memory")
     validate_cmd.add_argument("--dir", default=str(SCENARIOS_DIR), help="Scenario directory path")
     validate_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
@@ -442,6 +452,14 @@ def main() -> int:
             print(dump_report_json(report))
         else:
             print(render_report_text(report))
+        return 0
+
+    if args.cmd == "demo-alpha":
+        showcase = run_showcase_demo(story=args.story, archive=args.archive)
+        if args.json:
+            print(dump_json(showcase))
+        else:
+            print(render_showcase_text(showcase))
         return 0
 
     if args.cmd == "validate-browser":

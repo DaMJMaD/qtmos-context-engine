@@ -71,6 +71,27 @@ The current Alpha is strongest at context mismatch, trust drift, containment rou
 
 ## Try It In Two Minutes
 
+If you want the fastest single-command showcase, run:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli demo-alpha
+```
+
+That gives you a clean two-phase story:
+
+- QTF containment succeeds
+- policy stays in `review` until EXT is requested
+- a second report shows what changes once promotion becomes explicit
+
+Other built-in showcase stories:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli demo-alpha --story registry-review
+python3 -m bridges.alpha.cli demo-alpha --story lockdown-deny
+```
+
 If you just want to see whether the engine is coherent, run the validation packs first:
 
 ```bash
