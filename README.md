@@ -1,57 +1,85 @@
 # QTMoS Alp-Beta
 
-QTMoS Alp-Beta is a local-first context-integrity and containment engine.
+QTMoS is a local-first context-integrity and containment engine.
 
-It watches what software surface is active, what web page is actually present, what human-side context is available, what risky execution is being attempted, and what policy action makes sense next. It keeps the raw event line, rebuilds current state from that truth, then projects trust and policy without hiding the reasoning.
+It is built around a simple security idea: a lot of risky moments do not start with a known malware signature. They start when the machine, the browser, the session, the package action, and the human context stop lining up cleanly.
+
+QTMoS watches those seams, keeps the raw event line append-only, rebuilds current state from that truth, and projects trust and policy without hiding the reasoning.
+
+## Why This Exists
+
+Most security tools ask:
+
+- is this known bad
+- can we block this hard
+- does this match a signature
+
+QTMoS asks a different question:
+
+- does what is happening right now make sense in context
+
+That means it is closer to context integrity, trust drift detection, and containment at risky boundaries than to classic antivirus or heavy-handed host lockdown.
+
+## What QTMoS Does
+
+Today, Alpha can correlate:
+
+- active desktop surface facts
+- active browser/page facts
+- optional human/context signals from AHK
+- package-install intent
+- offline QTF containment runs
+- host-session breadcrumbs after login or handoff
+
+From that, it can project trust such as `trusted`, `shifted`, `suspicious`, or `unknown`, and separately decide policy such as `allow`, `review`, `quarantine`, or `deny`.
+
+## Why The Split Matters
+
+QTMoS intentionally keeps trust and policy separate.
+
+That lets the system say something like:
+
+```text
+Overall trust: trusted
+Policy: review (package_registry_review)
+```
+
+That is not a contradiction. It means the current browser and surface are aligned, while the current package action still deserves caution.
 
 ## What Makes It Different
 
 - One append-only bus shared across very different observer lanes
-- Conservative trust: `trusted`, `shifted`, `suspicious`, `unknown`
-- Separate trust and policy layers, so the system can say "this looks aligned" and "still review this package"
-- First-class containment through QTF instead of pretending the host is always safe
-- Human-loop integration through AHK instead of silent hidden automation
+- Conservative trust: binding is evidence, not proof
+- Raw event truth stays separate from rebuilt current state and policy
+- Containment is first-class through QTF instead of pretending the host is always safe
+- Human-loop feedback is explicit instead of hidden behind opaque automation
 
-## Current Alpha Lanes
+## What QTMoS Is Not
 
-- `surface.observe`: active desktop surface facts
-- `web.observe`: active browser/page facts
-- `mindseye.vitals`: human/context seam from AHK
-- `ahk.feedback`: operator response back into the bus
-- `package.install.observe`: risky package intent
-- `qtf.execution`: containment execution evidence
-- `host.session.observe`: session handoff breadcrumbs
+- not antivirus
+- not EDR
+- not a rootkit killer
+- not trying to own or heavily lock down the entire machine
 
-## Architecture Rules
+The current Alpha is strongest at context mismatch, trust drift, containment routing, and making risky actions legible. It is weaker against already-established kernel or firmware compromise, and it is better to say that plainly than to overclaim.
 
-- Raw line first, meaning second
-- The bus is truth
-- Rebuilt state is current meaning
-- Policy is a recommendation layer
-- Projection is not allowed to overwrite the source event
-- Binding is evidence, not proof
+## Try It In Two Minutes
 
-## Repo Layout
+If you just want to see whether the engine is coherent, run the validation packs first:
 
-```text
-QTMoS Alp-Beta/
-  bridges/
-  config/
-  docs/
-  hosts/
-  runtime/
-  schemas/
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli validate-browser
+python3 -m bridges.alpha.cli validate-policy
+python3 -m bridges.alpha.cli validate-package
+python3 -m bridges.alpha.cli validate-qtf
+python3 -m bridges.alpha.cli validate-host-session
+python3 -m bridges.alpha.cli validate-messy
 ```
 
-Core architecture docs:
+That gives you a zero-drama way to see the trust and policy model work before wiring every live observer lane.
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- [WHITEPAPER_CURRENT.md](docs/WHITEPAPER_CURRENT.md)
-- [BUSYDAWG_3D_PLAN.md](docs/BUSYDAWG_3D_PLAN.md)
-- [SELF_ARCHITECTURE.md](docs/SELF_ARCHITECTURE.md)
-- [INTEGRATIONAL_AWARENESS.md](docs/INTEGRATIONAL_AWARENESS.md)
-
-## Quick Start
+## See The Live Console
 
 Run the local Alpha bridge:
 
@@ -60,7 +88,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli serve-http
 ```
 
-Open the local read-only console:
+Then open:
 
 - `http://127.0.0.1:8765/alpha/console`
 
@@ -71,7 +99,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli report
 ```
 
-Rebuild state/tags/projection explicitly:
+Rebuild state, tags, and projection explicitly:
 
 ```bash
 cd "/path/to/QTMoS-Alp-Beta"
@@ -92,20 +120,59 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli reset-alpha --archive
 ```
 
-## Validation
+## Three Alpha Demo Stories
 
-Run the regression packs without touching live runtime state:
+These are the clearest ways to understand the current project shape:
 
-```bash
-cd "/path/to/QTMoS-Alp-Beta"
-python3 -m bridges.alpha.cli validate-browser
-python3 -m bridges.alpha.cli validate-mindseye
-python3 -m bridges.alpha.cli validate-policy
-python3 -m bridges.alpha.cli validate-package
-python3 -m bridges.alpha.cli validate-qtf
-python3 -m bridges.alpha.cli validate-host-session
-python3 -m bridges.alpha.cli validate-messy
+1. Browser and surface trust drift
+QTMoS compares the active browser page and the focused desktop surface, then treats a clean bind very differently from a misleading or sensitive mismatch.
+
+2. Registry package install routed into containment
+QTMoS can observe a package action, run it inside QTF, preserve the execution evidence, and still keep policy at `review` if the source is risky enough to warrant it.
+
+3. Suspicious session breadcrumb after login or handoff
+QTMoS can preserve a host-session note like `lockdown_ready` or `compromise_suspected` without silently rewriting the story later.
+
+There is a fuller walkthrough in [docs/TEST_DRIVE.md](docs/TEST_DRIVE.md).
+
+## Current Alpha Lanes
+
+- `surface.observe`: active desktop surface facts
+- `web.observe`: active browser/page facts
+- `mindseye.vitals`: optional human/context seam from AHK
+- `ahk.feedback`: operator response back into the bus
+- `package.install.observe`: risky package intent
+- `qtf.execution`: containment execution evidence
+- `host.session.observe`: session handoff breadcrumbs
+
+## Architecture Rules
+
+- raw line first, meaning second
+- the bus is truth
+- rebuilt state is current meaning
+- policy is a recommendation layer
+- projection is not allowed to overwrite the source event
+- binding is evidence, not proof
+
+## Repo Layout
+
+```text
+QTMoS Alp-Beta/
+  bridges/
+  config/
+  docs/
+  hosts/
+  runtime/
+  schemas/
 ```
+
+Core docs:
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/WHITEPAPER_CURRENT.md](docs/WHITEPAPER_CURRENT.md)
+- [docs/BUSYDAWG_3D_PLAN.md](docs/BUSYDAWG_3D_PLAN.md)
+- [docs/SELF_ARCHITECTURE.md](docs/SELF_ARCHITECTURE.md)
+- [docs/INTEGRATIONAL_AWARENESS.md](docs/INTEGRATIONAL_AWARENESS.md)
 
 ## Browser Observer
 
@@ -116,7 +183,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli serve-http
 ```
 
-Then load the unpacked Chrome/Chromium extension from:
+Then load the unpacked Chrome or Chromium extension from:
 
 - `bridges/browser-observer/chrome`
 
@@ -232,15 +299,14 @@ The most useful live files while testing are:
 - `runtime/state/busydawg-state.json`
 - `runtime/tags/latest-tags.json`
 
-## Publish Notes
+## Feedback And Contributions
 
-Before publishing:
+If you try QTMoS and it confuses you, breaks, or feels promising in a way the README did not explain well, that is useful feedback.
 
-- keep generated runtime state out of git
-- keep machine-specific paths out of docs and startup scripts
-- keep private adapters, heuristics, or local-only data out of the public tree
-- use the validation packs as your pre-push smoke test
+The fastest way to help right now is:
 
-The project is strongest when presented as:
+- try one validation pack and tell me where the wording feels unclear
+- try the local console and tell me what feels obvious versus mysterious
+- open an issue with sanitized output, screenshots, or a short write-up of what you expected
 
-`local operational-context engine + conservative trust + explicit policy + containment by cage`
+Contributor notes live in [CONTRIBUTING.md](CONTRIBUTING.md).
