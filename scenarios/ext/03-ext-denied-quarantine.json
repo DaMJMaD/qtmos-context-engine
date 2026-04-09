@@ -1,15 +1,23 @@
 {
   "expected": {
-    "hot_node": "bd_qtf_active",
-    "package_manager": "npm",
-    "package_qtf_requested": true,
-    "policy_action": "review",
-    "policy_rule": "package_ext_required_review",
-    "qtf_backend": "podman",
-    "qtf_success": true
+    "hot_node": "bd_ext_active",
+    "policy_action": "quarantine",
+    "policy_rule": "package_ext_denied_quarantine",
+    "qtf_label": "pkg-npm-install-local-package",
+    "result": "denied",
+    "target": "host"
   },
-  "id": "local_qtf_review",
-  "name": "Local npm install routed through QTF stays in review until EXT is requested",
+  "ext": {
+    "artifact_kind": "package",
+    "package_manager": "npm",
+    "package_name": "local-package",
+    "qtf_label": "pkg-npm-install-local-package",
+    "reason": "Promotion was explicitly denied after inspection",
+    "result": "denied",
+    "target": "host"
+  },
+  "id": "ext_denied_quarantine",
+  "name": "Denied EXT promotion keeps the contained package quarantined",
   "package": {
     "command": [
       "npm",

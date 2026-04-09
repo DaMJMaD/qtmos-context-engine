@@ -1,0 +1,28 @@
+{
+  "expected": {
+    "policy_action": "deny",
+    "policy_rule": "host_lockdown_ext_deny"
+  },
+  "id": "host_lockdown_ext_deny",
+  "name": "EXT promotion request during a lockdown-ready suspicious host session denies",
+  "state_snapshot": {
+    "active_ext_promotion": {
+      "artifact_kind": "package",
+      "package_name": "local-package",
+      "qtf_label": "pkg-npm-install-local-package",
+      "result": "requested",
+      "target": "host"
+    },
+    "active_host_session": {
+      "compromise_suspected": true,
+      "recovery_hint": "lockdown_ready"
+    },
+    "rebuilt_at": "2026-04-09T00:05:00Z"
+  },
+  "tags_snapshot": {
+    "binding_evidence": {
+      "link_confidence": "none"
+    },
+    "trust_status": "unknown"
+  }
+}

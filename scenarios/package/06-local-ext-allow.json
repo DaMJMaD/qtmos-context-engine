@@ -1,15 +1,25 @@
 {
   "expected": {
-    "hot_node": "bd_qtf_active",
+    "ext_result": "requested",
+    "hot_node": "bd_ext_active",
     "package_manager": "npm",
     "package_qtf_requested": true,
-    "policy_action": "review",
-    "policy_rule": "package_ext_required_review",
+    "policy_action": "allow",
+    "policy_rule": "package_clean_local_ext_allow",
     "qtf_backend": "podman",
     "qtf_success": true
   },
-  "id": "local_qtf_review",
-  "name": "Local npm install routed through QTF stays in review until EXT is requested",
+  "ext": {
+    "artifact_kind": "package",
+    "package_manager": "npm",
+    "package_name": "local-package",
+    "qtf_label": "pkg-npm-install-local-package",
+    "reason": "Explicitly asking EXT to release the clean local package back to host",
+    "result": "requested",
+    "target": "host"
+  },
+  "id": "local_ext_allow",
+  "name": "Local npm install only allows after a matching EXT request",
   "package": {
     "command": [
       "npm",

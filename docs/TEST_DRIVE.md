@@ -11,6 +11,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli validate-browser
 python3 -m bridges.alpha.cli validate-policy
 python3 -m bridges.alpha.cli validate-package
+python3 -m bridges.alpha.cli validate-ext
 python3 -m bridges.alpha.cli validate-privilege
 python3 -m bridges.alpha.cli validate-qtf
 python3 -m bridges.alpha.cli validate-host-session
@@ -22,6 +23,7 @@ What this proves:
 - the trust model is internally coherent
 - policy is not blindly mirroring trust
 - QTF and package routing still behave as expected
+- EXT promotion requests behave like explicit boundaries instead of silent promotion
 - messy mixed-signal scenarios still land in understandable outcomes
 
 ## Path 2: Live Local Console
@@ -85,7 +87,24 @@ What you are looking for:
 
 - a package install observation in the report
 - a QTF route and execution record
-- a policy decision that matches the source and containment evidence
+- a policy decision that still waits for EXT before allowing a clean local package back to host
+
+Then request the promotion explicitly:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli observe-ext \
+  --qtf-label pkg-npm-install-local-demo \
+  --package-name local-demo \
+  --package-manager npm \
+  --reason "Requesting promotion after inspection"
+```
+
+What you are looking for next:
+
+- an `EXT:` line in the report
+- a policy answer that reflects the package source and the matched QTF evidence
+- a clearer difference between containment success and promotion permission
 
 ## Path 5: Host Session Breadcrumb
 

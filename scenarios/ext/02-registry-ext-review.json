@@ -1,0 +1,59 @@
+{
+  "expected": {
+    "hot_node": "bd_ext_active",
+    "policy_action": "review",
+    "policy_rule": "package_registry_review",
+    "qtf_label": "pkg-npm-install-axios",
+    "result": "requested",
+    "target": "host"
+  },
+  "ext": {
+    "artifact_kind": "package",
+    "package_manager": "npm",
+    "package_name": "axios",
+    "qtf_label": "pkg-npm-install-axios",
+    "reason": "Trying to promote a registry package after containment",
+    "result": "requested",
+    "target": "host"
+  },
+  "id": "registry_ext_review",
+  "name": "Registry package still stays in review even after an EXT request",
+  "package": {
+    "command": [
+      "npm",
+      "install",
+      "axios@1.14.0"
+    ],
+    "lockfile_state": "present",
+    "manager": "npm",
+    "operation": "install",
+    "package_name": "axios",
+    "qtf_label": "pkg-npm-install-axios",
+    "qtf_requested": true,
+    "scripts_policy": "default",
+    "source_kind": "registry",
+    "version_spec": "1.14.0",
+    "workspace_seed": "/tmp/npm-project"
+  },
+  "qtf": {
+    "backend": "podman",
+    "backend_requested": "auto",
+    "capture_ts": "2026-04-08T20:20:00Z",
+    "command": [
+      "npm",
+      "install",
+      "axios@1.14.0"
+    ],
+    "command_text": "npm install axios@1.14.0",
+    "created_files": [
+      "node_modules/axios/index.js"
+    ],
+    "duration_ms": 1260,
+    "exit_code": 0,
+    "image": "ubuntu:latest",
+    "label": "pkg-npm-install-axios",
+    "success": true,
+    "workspace_mode": "directory",
+    "workspace_seed": "/tmp/npm-project"
+  }
+}

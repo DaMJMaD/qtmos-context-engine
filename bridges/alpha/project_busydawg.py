@@ -18,6 +18,7 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
     active_package_install = state.get("active_package_install") or {}
     active_host_session = state.get("active_host_session") or {}
     active_privilege = state.get("active_privilege") or {}
+    active_ext_promotion = state.get("active_ext_promotion") or {}
     mindseye_binding = active_mindseye.get("binding") or {}
     binding = active_web.get("linked_surface") or {}
     trust_status = tags.get("trust_status", "unknown")
@@ -162,6 +163,34 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
                 },
             },
         )
+    if active_ext_promotion:
+        ext_rail = (
+            "suspicious"
+            if policy_action in {"deny", "quarantine"}
+            else "shifted"
+            if active_ext_promotion.get("result") == "requested"
+            else "0rail"
+        )
+        nodes.insert(
+            2,
+            {
+                "id": "bd_ext_active",
+                "label": (
+                    f"EXT:{active_ext_promotion.get('result') or 'observed'}"
+                ),
+                "kind": "ext",
+                "rail": ext_rail,
+                "active": True,
+                "meta": {
+                    "result": active_ext_promotion.get("result"),
+                    "target": active_ext_promotion.get("target"),
+                    "artifact_kind": active_ext_promotion.get("artifact_kind"),
+                    "qtf_label": active_ext_promotion.get("qtf_label"),
+                    "package_name": active_ext_promotion.get("package_name"),
+                    "reason": active_ext_promotion.get("reason"),
+                },
+            },
+        )
     if active_web:
         nodes.insert(
             2,
@@ -251,6 +280,9 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
             "bd_privilege_active"
             if active_privilege and active_host_session.get("compromise_suspected")
             else
+            "bd_ext_active"
+            if active_ext_promotion and (policy_action in {"review", "quarantine", "deny"} or (not active_web and not active_surface))
+            else
             "bd_host_session_active"
             if active_host_session and active_host_session.get("compromise_suspected")
             else
@@ -288,6 +320,27 @@ def build_busydawg_projection(state: dict[str, Any], tags: dict[str, Any]) -> di
         + (
             [{"from": "bd_host_session_active", "to": "bd_privilege_active", "kind": "boundary"}]
             if active_host_session and active_privilege
+            else []
+        )
+        + (
+            [{"from": "bd_qtf_active", "to": "bd_ext_active", "kind": "promotion_gate"}]
+            if active_qtf_execution
+            and active_ext_promotion
+            and active_qtf_execution.get("label")
+            and active_qtf_execution.get("label") == active_ext_promotion.get("qtf_label")
+            else []
+        )
+        + (
+            [{"from": "bd_package_active", "to": "bd_ext_active", "kind": "promotion_request"}]
+            if active_package_install
+            and active_ext_promotion
+            and active_package_install.get("qtf_label")
+            and active_package_install.get("qtf_label") == active_ext_promotion.get("qtf_label")
+            else []
+        )
+        + (
+            [{"from": "bd_ext_active", "to": "bd_policy_active", "kind": "gate"}]
+            if active_ext_promotion
             else []
         )
         + (

@@ -1,0 +1,24 @@
+{
+  "expected": {
+    "policy_action": "review",
+    "policy_rule": "ext_unmatched_review"
+  },
+  "id": "ext_unmatched_review",
+  "name": "Promotion request without matched QTF evidence stays in review",
+  "state_snapshot": {
+    "active_ext_promotion": {
+      "artifact_kind": "package",
+      "package_name": "local-package",
+      "qtf_label": "pkg-npm-install-local-package",
+      "result": "requested",
+      "target": "host"
+    },
+    "rebuilt_at": "2026-04-09T00:10:00Z"
+  },
+  "tags_snapshot": {
+    "binding_evidence": {
+      "link_confidence": "none"
+    },
+    "trust_status": "unknown"
+  }
+}

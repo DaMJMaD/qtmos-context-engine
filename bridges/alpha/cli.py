@@ -8,6 +8,7 @@ from typing import Any
 from .ahk_feedback import ingest_ahk_feedback_and_cycle, ingest_ahk_feedback_events
 from .ahk_policy_bridge import publish_ahk_policy_hook
 from .appender import append_event
+from .ext import observe_ext_and_cycle
 from .host_session import observe_host_session_and_cycle
 from .models import dump_json, now_iso
 from .paths import (
@@ -15,6 +16,7 @@ from .paths import (
     AHK_LEARN_JSONL,
     AHK_RECORD_JSONL,
     BUSYDAWG_STATE_JSON,
+    EXT_SCENARIOS_DIR,
     EVENTS_JSONL,
     FULL_CHAIN_SCENARIOS_DIR,
     HOST_SESSION_SCENARIOS_DIR,
@@ -41,6 +43,7 @@ from .surface import append_surface_event, build_surface_event, load_previous_su
 from .validation import (
     validate_ahk_feedback_scenarios,
     validate_browser_scenarios,
+    validate_ext_scenarios,
     validate_full_chain_scenarios,
     validate_host_session_scenarios,
     validate_mindseye_scenarios,
@@ -238,6 +241,9 @@ def build_parser() -> argparse.ArgumentParser:
     validate_privilege_cmd = sub.add_parser("validate-privilege", help="Run privilege boundary scenarios in memory")
     validate_privilege_cmd.add_argument("--dir", default=str(PRIVILEGE_SCENARIOS_DIR), help="Scenario directory path")
     validate_privilege_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
+    validate_ext_cmd = sub.add_parser("validate-ext", help="Run EXT promotion gate scenarios in memory")
+    validate_ext_cmd.add_argument("--dir", default=str(EXT_SCENARIOS_DIR), help="Scenario directory path")
+    validate_ext_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
     validate_package_cmd = sub.add_parser("validate-package", help="Run package install routing scenarios in memory")
     validate_package_cmd.add_argument("--dir", default=str(PACKAGE_SCENARIOS_DIR), help="Scenario directory path")
     validate_package_cmd.add_argument("--json", action="store_true", help="Print the full validation result as JSON")
@@ -310,6 +316,14 @@ def build_parser() -> argparse.ArgumentParser:
     privilege_cmd.add_argument("--target-uid", type=int, default=0, help="Intended target uid; use -1 to omit")
     privilege_cmd.add_argument("--reason", default="", help="Optional note about why this privilege boundary is being recorded")
     privilege_cmd.add_argument("command", nargs=argparse.REMAINDER, help="Observed command after --")
+    ext_cmd = sub.add_parser("observe-ext", help="Append one ext.promotion.observe boundary event and rebuild projections")
+    ext_cmd.add_argument("--result", choices=["requested", "denied", "withdrawn"], default="requested")
+    ext_cmd.add_argument("--target", choices=["host", "workspace", "custom"], default="host")
+    ext_cmd.add_argument("--artifact-kind", choices=["package", "workspace", "file", "custom"], default="package")
+    ext_cmd.add_argument("--qtf-label", default="", help="QTF label this promotion request is tied to")
+    ext_cmd.add_argument("--package-name", default="", help="Optional package name for the promotion request")
+    ext_cmd.add_argument("--package-manager", default="", help="Optional package manager for the promotion request")
+    ext_cmd.add_argument("--reason", default="", help="Optional note about why this promotion boundary is being recorded")
 
     surface_cmd = sub.add_parser("emit-surface", help="Append one surface.observe event")
     surface_cmd.add_argument("--host", default="linux-spy")
@@ -552,6 +566,28 @@ def main() -> int:
                         print(f"  - {failure}")
         return 0 if result["failed"] == 0 else 1
 
+    if args.cmd == "validate-ext":
+        result = validate_ext_scenarios(Path(args.dir))
+        if args.json:
+            print(dump_json(result))
+        else:
+            print(
+                f"EXT validation: {result['passed']}/{result['scenario_count']} passed "
+                f"({result['failed']} failed)"
+            )
+            for item in result["results"]:
+                status = "PASS" if item["passed"] else "FAIL"
+                print(f"[{status}] {item['name']} ({item['id']})")
+                print(
+                    f"  Result: {item['actual'].get('result', '')} | "
+                    f"Target: {item['actual'].get('target', '')} | "
+                    f"Policy: {item['actual'].get('policy_action', '')} ({item['actual'].get('policy_rule', '')})"
+                )
+                if item["failures"]:
+                    for failure in item["failures"]:
+                        print(f"  - {failure}")
+        return 0 if result["failed"] == 0 else 1
+
     if args.cmd == "validate-package":
         result = validate_package_scenarios(Path(args.dir))
         if args.json:
@@ -775,6 +811,26 @@ def main() -> int:
             "overall_status": report.get("overall_status"),
             "policy_action": (report.get("policy") or {}).get("action"),
             "active_privilege": report.get("active_privilege"),
+            "paths": report.get("paths"),
+        }
+        print(dump_json(result))
+        return 0
+
+    if args.cmd == "observe-ext":
+        result = observe_ext_and_cycle(
+            result=args.result,
+            target=args.target,
+            artifact_kind=args.artifact_kind,
+            qtf_label=args.qtf_label,
+            package_name=args.package_name,
+            package_manager=args.package_manager,
+            reason=args.reason,
+        )
+        report = build_report_payload(result["state"], result["tags"], result["busydawg"])
+        result["report"] = {
+            "overall_status": report.get("overall_status"),
+            "policy_action": (report.get("policy") or {}).get("action"),
+            "active_ext_promotion": report.get("active_ext_promotion"),
             "paths": report.get("paths"),
         }
         print(dump_json(result))

@@ -30,6 +30,7 @@ def build_report_payload(
     active_package_install = state.get("active_package_install") or {}
     active_host_session = state.get("active_host_session") or {}
     active_privilege = state.get("active_privilege") or {}
+    active_ext_promotion = state.get("active_ext_promotion") or {}
     binding = tags.get("binding_evidence") or {}
     policy = busydawg.get("policy") or {}
 
@@ -133,6 +134,16 @@ def build_report_payload(
             "reason": active_privilege.get("reason"),
             "capture_ts": active_privilege.get("capture_ts"),
         },
+        "active_ext_promotion": {
+            "result": active_ext_promotion.get("result"),
+            "target": active_ext_promotion.get("target"),
+            "artifact_kind": active_ext_promotion.get("artifact_kind"),
+            "qtf_label": active_ext_promotion.get("qtf_label"),
+            "package_name": active_ext_promotion.get("package_name"),
+            "package_manager": active_ext_promotion.get("package_manager"),
+            "reason": active_ext_promotion.get("reason"),
+            "capture_ts": active_ext_promotion.get("capture_ts"),
+        },
         "timing": {
             "rebuilt_at": state.get("rebuilt_at"),
             "last_focus_change_ts": tags.get("last_focus_change_ts"),
@@ -143,6 +154,7 @@ def build_report_payload(
             "last_package_install_ts": state.get("last_package_install_ts"),
             "last_host_session_ts": state.get("last_host_session_ts"),
             "last_privilege_ts": state.get("last_privilege_ts"),
+            "last_ext_ts": state.get("last_ext_ts"),
             "event_count": state.get("event_count", 0),
         },
         "busydawg": {
@@ -182,6 +194,7 @@ def render_report_text(report: dict[str, Any]) -> str:
     package = report.get("active_package_install", {})
     host_session = report.get("active_host_session", {})
     privilege = report.get("active_privilege", {})
+    ext = report.get("active_ext_promotion", {})
     timing = report.get("timing", {})
     policy = report.get("policy", {})
 
@@ -255,6 +268,18 @@ def render_report_text(report: dict[str, Any]) -> str:
             )
         ),
         (
+            "EXT: "
+            + (
+                f"{ext.get('result') or 'none'}"
+                + (f" -> {ext.get('target')}" if ext and ext.get("target") else "")
+                + (
+                    f" ({ext.get('qtf_label') or ext.get('package_name')})"
+                    if ext and (ext.get("qtf_label") or ext.get("package_name"))
+                    else ""
+                )
+            )
+        ),
+        (
             "Binding: "
             f"{binding.get('link_confidence', 'none')} -> "
             f"{binding.get('linked_surface_title') or binding.get('linked_surface_id') or 'unbound'}"
@@ -294,6 +319,8 @@ def render_report_text(report: dict[str, Any]) -> str:
         lines.append("Privilege target: " + str(privilege.get("target_user")))
     if privilege.get("reason"):
         lines.append("Privilege reason: " + str(privilege.get("reason")))
+    if ext.get("reason"):
+        lines.append("EXT reason: " + str(ext.get("reason")))
     if package:
         lines.append(
             "Package route: "

@@ -30,6 +30,7 @@ Today, Alpha can correlate:
 - privilege-boundary observations such as `sudo`, `su`, `pkexec`, or `doas`
 - package-install intent
 - offline QTF containment runs
+- explicit EXT promotion requests before contained artifacts leave QTF
 - host-session breadcrumbs after login or handoff
 
 From that, it can project trust such as `trusted`, `shifted`, `suspicious`, or `unknown`, and separately decide policy such as `allow`, `review`, `quarantine`, or `deny`.
@@ -73,6 +74,7 @@ cd "/path/to/QTMoS-Alp-Beta"
 python3 -m bridges.alpha.cli validate-browser
 python3 -m bridges.alpha.cli validate-policy
 python3 -m bridges.alpha.cli validate-package
+python3 -m bridges.alpha.cli validate-ext
 python3 -m bridges.alpha.cli validate-privilege
 python3 -m bridges.alpha.cli validate-qtf
 python3 -m bridges.alpha.cli validate-host-session
@@ -129,8 +131,8 @@ These are the clearest ways to understand the current project shape:
 1. Browser and surface trust drift
 QTMoS compares the active browser page and the focused desktop surface, then treats a clean bind very differently from a misleading or sensitive mismatch.
 
-2. Registry package install routed into containment
-QTMoS can observe a package action, run it inside QTF, preserve the execution evidence, and still keep policy at `review` if the source is risky enough to warrant it.
+2. Package action routed into containment, then through EXT
+QTMoS can observe a package action, run it inside QTF, preserve the execution evidence, and still require an explicit EXT request before policy allows it back onto the host.
 
 3. Suspicious session breadcrumb after login or handoff
 QTMoS can preserve a host-session note like `lockdown_ready` or `compromise_suspected` without silently rewriting the story later.
@@ -146,6 +148,7 @@ There is a fuller walkthrough in [docs/TEST_DRIVE.md](docs/TEST_DRIVE.md).
 - `privilege.observe`: privilege boundary breadcrumbs
 - `package.install.observe`: risky package intent
 - `qtf.execution`: containment execution evidence
+- `ext.promotion.observe`: explicit promotion request at the QTF boundary
 - `host.session.observe`: session handoff breadcrumbs
 
 ## Architecture Rules
@@ -256,6 +259,17 @@ python3 -m bridges.alpha.cli observe-package \
   --workspace /path/to/local/project \
   --route-qtf \
   -- /bin/sh -lc 'pwd && ls -1'
+```
+
+Request an explicit EXT promotion after a clean contained run:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+python3 -m bridges.alpha.cli observe-ext \
+  --qtf-label pkg-npm-install-local-demo \
+  --package-name local-demo \
+  --package-manager npm \
+  --reason "Requesting promotion after clean QTF execution"
 ```
 
 Related schemas:

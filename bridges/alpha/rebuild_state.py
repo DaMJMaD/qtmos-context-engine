@@ -255,6 +255,33 @@ def _privilege_summary(event: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _ext_summary(event: dict[str, Any]) -> dict[str, Any]:
+    payload = event.get("payload", {})
+    observation = payload.get("ext_observation", {})
+    return {
+        "event_id": event.get("id"),
+        "ts": event.get("ts"),
+        "observer": event.get("source", {}).get("observer", event.get("source", {}).get("host", "unknown")),
+        "result": observation.get("result"),
+        "target": observation.get("target"),
+        "artifact_kind": observation.get("artifact_kind"),
+        "qtf_label": observation.get("qtf_label"),
+        "package_name": observation.get("package_name"),
+        "package_manager": observation.get("package_manager"),
+        "reason": observation.get("reason"),
+        "capture_ts": observation.get("capture_ts"),
+        "user": observation.get("user"),
+        "uid": observation.get("uid"),
+        "cwd": observation.get("cwd"),
+        "shell": observation.get("shell"),
+        "session_type": observation.get("session_type"),
+        "current_desktop": observation.get("current_desktop"),
+        "display": observation.get("display"),
+        "wayland_display": observation.get("wayland_display"),
+        "signature": payload.get("ext_signature", {}),
+    }
+
+
 def build_state(events: list[dict[str, Any]]) -> dict[str, Any]:
     counts = Counter()
     host_counts = Counter()
@@ -282,6 +309,9 @@ def build_state(events: list[dict[str, Any]]) -> dict[str, Any]:
     active_privilege: dict[str, Any] | None = None
     previous_active_privilege: dict[str, Any] | None = None
     last_privilege_ts: str | None = None
+    active_ext_promotion: dict[str, Any] | None = None
+    previous_active_ext_promotion: dict[str, Any] | None = None
+    last_ext_ts: str | None = None
     recent_events: list[dict[str, Any]] = []
     learned: list[dict[str, Any]] = []
     records: list[dict[str, Any]] = []
@@ -293,6 +323,7 @@ def build_state(events: list[dict[str, Any]]) -> dict[str, Any]:
     observer_package: dict[str, dict[str, Any]] = {}
     observer_host_session: dict[str, dict[str, Any]] = {}
     observer_privilege: dict[str, dict[str, Any]] = {}
+    observer_ext: dict[str, dict[str, Any]] = {}
     last_surface_web_binding: dict[str, Any] | None = None
     subjects: dict[str, Any] = {}
 
@@ -428,6 +459,20 @@ def build_state(events: list[dict[str, Any]]) -> dict[str, Any]:
             active_privilege = summary
             observer_privilege[summary["observer"]] = summary
             subjects[f"privilege:{summary.get('method') or 'boundary'}"] = summary
+        elif event_type == "ext.promotion.observe":
+            summary = _ext_summary(event)
+            if active_ext_promotion and (
+                summary.get("result") != active_ext_promotion.get("result")
+                or summary.get("qtf_label") != active_ext_promotion.get("qtf_label")
+                or summary.get("target") != active_ext_promotion.get("target")
+                or summary.get("ts") != active_ext_promotion.get("ts")
+            ):
+                previous_active_ext_promotion = active_ext_promotion
+                last_ext_ts = summary.get("ts")
+            active_ext_promotion = summary
+            observer_ext[summary["observer"]] = summary
+            subject_key = summary.get("qtf_label") or summary.get("package_name") or summary.get("target") or "promotion"
+            subjects[f"ext:{subject_key}"] = summary
         elif event_type in {"memory.note", "bridge.learn"}:
             summary = _record_summary(event)
             learned.append(summary)
@@ -486,6 +531,9 @@ def build_state(events: list[dict[str, Any]]) -> dict[str, Any]:
         "active_privilege": active_privilege,
         "previous_active_privilege": previous_active_privilege,
         "last_privilege_ts": last_privilege_ts,
+        "active_ext_promotion": active_ext_promotion,
+        "previous_active_ext_promotion": previous_active_ext_promotion,
+        "last_ext_ts": last_ext_ts,
         "surface_by_observer": observer_surfaces,
         "web_by_observer": observer_web,
         "mindseye_by_observer": observer_mindseye,
@@ -494,6 +542,7 @@ def build_state(events: list[dict[str, Any]]) -> dict[str, Any]:
         "package_by_observer": observer_package,
         "host_session_by_observer": observer_host_session,
         "privilege_by_observer": observer_privilege,
+        "ext_by_observer": observer_ext,
         "last_surface_web_binding": last_surface_web_binding,
         "recent_events": recent_events,
         "learned": learned,

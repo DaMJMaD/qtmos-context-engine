@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .ahk_feedback import build_ahk_feedback_event
+from .ext import build_ext_event
 from .host_session import build_host_session_event
 from .mindseye import build_mindseye_event
 from .models import normalize_event
@@ -178,6 +179,18 @@ def _privilege_event_from_config(config: dict[str, Any]) -> dict[str, Any]:
         target_uid=config.get("target_uid", 0),
         reason=config.get("reason", ""),
         command=list(config.get("command", [])),
+    )
+
+
+def _ext_event_from_config(config: dict[str, Any]) -> dict[str, Any]:
+    return build_ext_event(
+        result=config.get("result", "requested"),
+        target=config.get("target", "host"),
+        artifact_kind=config.get("artifact_kind", "package"),
+        qtf_label=config.get("qtf_label", ""),
+        package_name=config.get("package_name", ""),
+        package_manager=config.get("package_manager", ""),
+        reason=config.get("reason", ""),
     )
 
 
@@ -615,6 +628,9 @@ def run_package_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
     qtf_cfg = scenario.get("qtf")
     if qtf_cfg:
         events.append(normalize_event(_qtf_event_from_config(qtf_cfg)))
+    ext_cfg = scenario.get("ext")
+    if ext_cfg:
+        events.append(normalize_event(_ext_event_from_config(ext_cfg)))
 
     state = build_state(events)
     tags = build_tags(state)
@@ -623,6 +639,7 @@ def run_package_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
 
     package = report.get("active_package_install") or {}
     qtf = report.get("active_qtf_execution") or {}
+    ext = report.get("active_ext_promotion") or {}
     policy = report.get("policy") or {}
     expected = scenario.get("expected", {})
     failures: list[str] = []
@@ -635,6 +652,8 @@ def run_package_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
         failures.append(f"qtf_backend expected {expected['qtf_backend']} got {qtf.get('backend')}")
     if "qtf_success" in expected and bool(qtf.get("success")) != bool(expected["qtf_success"]):
         failures.append(f"qtf_success expected {expected['qtf_success']} got {qtf.get('success')}")
+    if "ext_result" in expected and ext.get("result") != expected["ext_result"]:
+        failures.append(f"ext_result expected {expected['ext_result']} got {ext.get('result')}")
     if "hot_node" in expected and busydawg.get("hot_node") != expected["hot_node"]:
         failures.append(f"hot_node expected {expected['hot_node']} got {busydawg.get('hot_node')}")
     failures.extend(_evaluate_policy_expectations(expected, policy))
@@ -650,6 +669,7 @@ def run_package_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
             "package_qtf_requested": package.get("qtf_requested"),
             "qtf_backend": qtf.get("backend"),
             "qtf_success": qtf.get("success"),
+            "ext_result": ext.get("result"),
             "hot_node": busydawg.get("hot_node"),
             "policy_action": policy.get("action"),
             "policy_rule": policy.get("policy_rule"),
@@ -765,6 +785,69 @@ def run_privilege_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
 
 def validate_privilege_scenarios(scenarios_dir: Path) -> dict[str, Any]:
     results = [run_privilege_scenario(_load_json(path)) for path in _scenario_files(scenarios_dir)]
+    passed = sum(1 for item in results if item["passed"])
+    return {
+        "scenario_dir": str(scenarios_dir),
+        "scenario_count": len(results),
+        "passed": passed,
+        "failed": len(results) - passed,
+        "results": results,
+    }
+
+
+def run_ext_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
+    events: list[dict[str, Any]] = []
+    host_session_cfg = scenario.get("host_session")
+    if host_session_cfg:
+        events.append(normalize_event(_host_session_event_from_config(host_session_cfg)))
+    package_cfg = scenario.get("package")
+    if package_cfg:
+        events.append(normalize_event(_package_event_from_config(package_cfg)))
+    qtf_cfg = scenario.get("qtf")
+    if qtf_cfg:
+        events.append(normalize_event(_qtf_event_from_config(qtf_cfg)))
+    ext_cfg = scenario.get("ext", {})
+    events.append(normalize_event(_ext_event_from_config(ext_cfg)))
+
+    state = build_state(events)
+    tags = build_tags(state)
+    busydawg = build_busydawg_projection(state, tags)
+    report = build_report_payload(state, tags, busydawg)
+
+    ext = report.get("active_ext_promotion") or {}
+    policy = report.get("policy") or {}
+    expected = scenario.get("expected", {})
+    failures: list[str] = []
+
+    if "result" in expected and ext.get("result") != expected["result"]:
+        failures.append(f"result expected {expected['result']} got {ext.get('result')}")
+    if "target" in expected and ext.get("target") != expected["target"]:
+        failures.append(f"target expected {expected['target']} got {ext.get('target')}")
+    if "qtf_label" in expected and ext.get("qtf_label") != expected["qtf_label"]:
+        failures.append(f"qtf_label expected {expected['qtf_label']} got {ext.get('qtf_label')}")
+    if "hot_node" in expected and busydawg.get("hot_node") != expected["hot_node"]:
+        failures.append(f"hot_node expected {expected['hot_node']} got {busydawg.get('hot_node')}")
+    failures.extend(_evaluate_policy_expectations(expected, policy))
+
+    return {
+        "id": scenario.get("id", "unnamed"),
+        "name": scenario.get("name", scenario.get("id", "unnamed")),
+        "passed": not failures,
+        "failures": failures,
+        "expected": expected,
+        "actual": {
+            "result": ext.get("result"),
+            "target": ext.get("target"),
+            "qtf_label": ext.get("qtf_label"),
+            "hot_node": busydawg.get("hot_node"),
+            "policy_action": policy.get("action"),
+            "policy_rule": policy.get("policy_rule"),
+        },
+    }
+
+
+def validate_ext_scenarios(scenarios_dir: Path) -> dict[str, Any]:
+    results = [run_ext_scenario(_load_json(path)) for path in _scenario_files(scenarios_dir)]
     passed = sum(1 for item in results if item["passed"])
     return {
         "scenario_dir": str(scenarios_dir),

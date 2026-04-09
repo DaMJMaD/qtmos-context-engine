@@ -9,6 +9,15 @@
     "reason": "Privilege escalation during a suspected host session should be denied"
   },
   {
+    "name": "host_lockdown_ext_deny",
+    "host_compromise_suspected": true,
+    "host_recovery_hint": "lockdown_ready",
+    "ext_active": true,
+    "ext_result": "requested",
+    "action": "deny",
+    "reason": "Promotion requests during a lockdown-ready suspicious host session should be denied"
+  },
+  {
     "name": "host_suspected_privilege_review",
     "host_compromise_suspected": true,
     "privilege_active": true,
@@ -16,11 +25,34 @@
     "reason": "Privilege boundary during a suspected host session requires review"
   },
   {
+    "name": "host_suspected_ext_review",
+    "host_compromise_suspected": true,
+    "ext_active": true,
+    "ext_result": "requested",
+    "action": "review",
+    "reason": "Promotion gate activity during a suspected host session requires review"
+  },
+  {
     "name": "package_qtf_fail_quarantine",
     "package_qtf_requested": true,
     "qtf_success": false,
     "action": "quarantine",
     "reason": "QTF execution failed and the package flow should stay contained"
+  },
+  {
+    "name": "package_ext_denied_quarantine",
+    "ext_active": true,
+    "ext_result": "denied",
+    "action": "quarantine",
+    "reason": "Denied EXT promotion should stay contained inside QTF"
+  },
+  {
+    "name": "ext_unmatched_review",
+    "ext_active": true,
+    "ext_result": "requested",
+    "ext_matches_qtf": false,
+    "action": "review",
+    "reason": "Promotion request without matched QTF evidence requires review"
   },
   {
     "name": "package_registry_review",
@@ -42,12 +74,22 @@
     "reason": "Install scripts remain enabled outside QTF and need review"
   },
   {
-    "name": "package_clean_local_allow",
+    "name": "package_ext_required_review",
+    "package_promotion_pending": true,
+    "action": "review",
+    "reason": "Contained package flow requires an explicit EXT promotion request before host use"
+  },
+  {
+    "name": "package_clean_local_ext_allow",
     "package_source_kind": "local",
     "package_qtf_requested": true,
     "qtf_success": true,
+    "ext_active": true,
+    "ext_result": "requested",
+    "ext_target": "host",
+    "ext_matches_qtf": true,
     "action": "allow",
-    "reason": "Local package completed cleanly inside QTF"
+    "reason": "Local package completed cleanly inside QTF and passed through EXT"
   },
   {
     "name": "hard_deny",
