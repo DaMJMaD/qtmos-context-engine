@@ -372,12 +372,50 @@
       justify-content: flex-start;
     }
 
-    .lane-grid {
+    .lane-shell {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .lane-section {
+      display: grid;
+      gap: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .section-copy {
+      display: grid;
+      gap: 6px;
+      max-width: 56ch;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      color: var(--gold-2);
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .section-summary {
+      color: var(--muted);
+      line-height: 1.48;
+      font-size: 0.96rem;
+    }
+
+    .primary-grid,
+    .secondary-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
       align-items: start;
-      margin-bottom: 16px;
     }
 
     .lane-card {
@@ -488,7 +526,8 @@
 
     @media (max-width: 1180px) {
       .workspace-grid,
-      .lane-grid,
+      .primary-grid,
+      .secondary-grid,
       .summary-grid {
         grid-template-columns: 1fr;
       }
@@ -588,7 +627,35 @@
       </div>
     </section>
 
-    <section class="lane-grid" id="laneGrid"></section>
+    <section class="lane-shell">
+      <section class="lane-section">
+        <div class="section-head">
+          <div class="section-copy">
+            <div class="section-label">Primary Duality</div>
+            <h2 class="section-title">Local Pair</h2>
+            <p class="section-summary">
+              This is the Linux-native pair: Codex and Claude Code run directly from the Spawn shell and form the first dual split.
+            </p>
+          </div>
+          <div class="tone local">Construction Pair</div>
+        </div>
+        <div class="primary-grid" id="primaryGrid"></div>
+      </section>
+
+      <section class="lane-section">
+        <div class="section-head">
+          <div class="section-copy">
+            <div class="section-label">External Witnesses</div>
+            <h2 class="section-title">Browser Pair</h2>
+            <p class="section-summary">
+              These lanes are for your web-heavy models. Spawn builds the prompts here, then you paste the outside replies back in for cross-exam and foldback.
+            </p>
+          </div>
+          <div class="tone manual">Pasteback Pair</div>
+        </div>
+        <div class="secondary-grid" id="secondaryGrid"></div>
+      </section>
+    </section>
 
     <section class="foldback-card">
       <div class="foldback-top">
@@ -635,7 +702,8 @@
     let workspace = null;
     let catalog = null;
     const spawnStatus = document.getElementById("spawnStatus");
-    const laneGrid = document.getElementById("laneGrid");
+    const primaryGrid = document.getElementById("primaryGrid");
+    const secondaryGrid = document.getElementById("secondaryGrid");
     const sharedPrompt = document.getElementById("sharedPrompt");
     const sessionNotes = document.getElementById("sessionNotes");
     const sessionName = document.getElementById("sessionName");
@@ -863,7 +931,14 @@
       rubric.innerHTML = (catalog.rubric || []).map((item) => `<div class="chip">${escapeHtml(item.label)}</div>`).join("");
       renderJudgeOptions();
 
-      laneGrid.innerHTML = Object.keys(workspace.lanes).map(laneCard).join("");
+      const localLaneIds = Object.keys(workspace.lanes).filter((laneId) => laneDefinition(laneId)?.kind === "local");
+      const manualLaneIds = Object.keys(workspace.lanes).filter((laneId) => laneDefinition(laneId)?.kind === "manual");
+
+      primaryGrid.innerHTML = localLaneIds.map(laneCard).join("");
+      secondaryGrid.innerHTML = manualLaneIds.map(laneCard).join("");
+
+      document.getElementById("autoCount").textContent = `${localLaneIds.length} local lanes`;
+      document.getElementById("manualCount").textContent = `${manualLaneIds.length} browser lanes`;
 
       document.querySelectorAll("[data-field]").forEach((node) => {
         node.addEventListener("input", onFieldInput);

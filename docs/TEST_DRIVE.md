@@ -82,6 +82,15 @@ Use `/alpha/showcase` when you want all three built-in showcase stories rendered
 
 Use `/alpha/spawn` when you want a multi-lane prompt room: one shared question, automated local Codex + Claude lanes, manual browser/web lanes, generated cross-exam prompts, and a final foldback verdict.
 
+If you want that room to open like a Linux app:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+./hosts/install-spawn-desktop.sh
+```
+
+That creates a `QTMoS Spawn` launcher in your applications menu and points it at the local Spawn shell.
+
 ## Path 4: Browser-Surface Binding
 
 Load the unpacked extension from:

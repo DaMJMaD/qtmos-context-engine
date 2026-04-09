@@ -127,6 +127,15 @@ Use `/alpha/showcase` when you want all three demo stories rendered side-by-side
 
 Use `/alpha/spawn` when you want one prompt fanned out across multiple lanes, with local Codex + Claude automation, manual browser/web lanes, cross-exam prompts, and a final foldback judge.
 
+If you want Spawn to feel more like a Linux app instead of a raw browser tab:
+
+```bash
+cd "/path/to/QTMoS-Alp-Beta"
+./hosts/install-spawn-desktop.sh
+```
+
+That installs a `QTMoS Spawn` desktop entry that launches the local bridge and opens the Spawn shell in browser app mode.
+
 Print a human-readable trust summary:
 
 ```bash
