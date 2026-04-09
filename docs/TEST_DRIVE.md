@@ -66,6 +66,7 @@ python3 -m bridges.alpha.cli serve-http
 Then open:
 
 - `http://127.0.0.1:8765/alpha/console`
+- `http://127.0.0.1:8765/alpha/showcase`
 
 In another shell, ask for a human-readable summary:
 
@@ -75,6 +76,8 @@ python3 -m bridges.alpha.cli report
 ```
 
 This is the fastest way to see how QTMoS wants to explain itself to a person instead of only to the event bus.
+
+Use `/alpha/showcase` when you want all three built-in showcase stories rendered side-by-side with both summary cards and raw report text for screenshots or teaching.
 
 ## Path 4: Browser-Surface Binding
 

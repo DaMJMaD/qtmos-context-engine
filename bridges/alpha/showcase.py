@@ -7,11 +7,15 @@ from typing import Any
 from .appender import append_event
 from .ext import build_ext_event
 from .host_session import build_host_session_event
+from .models import normalize_event
 from .package import build_package_install_event
 from .paths import EXT_SCENARIOS_DIR, PACKAGE_SCENARIOS_DIR
 from .project_busydawg import project_busydawg
+from .project_busydawg import build_busydawg_projection
+from .project_tags import build_tags
 from .project_tags import project_tags
 from .qtf import build_qtf_event
+from .rebuild_state import build_state
 from .rebuild_state import rebuild_state
 from .reporting import build_report_payload, render_report_text
 from .reset_runtime import reset_alpha
@@ -186,10 +190,80 @@ def _capture_report() -> dict[str, Any]:
     }
 
 
-def run_showcase_demo(*, story: str = "local-ext", archive: bool = False) -> dict[str, Any]:
+def _append_phase_events_in_memory(
+    events: list[dict[str, Any]],
+    config: dict[str, Any],
+    include: tuple[str, ...],
+) -> None:
+    if "host_session" in include and config.get("host_session"):
+        events.append(normalize_event(_build_host_session_event_from_config(config["host_session"])))
+    if "package" in include and config.get("package"):
+        events.append(normalize_event(_build_package_event_from_config(config["package"])))
+    if "qtf" in include and config.get("qtf"):
+        events.append(normalize_event(_build_qtf_event_from_config(config["qtf"])))
+    if "ext" in include and config.get("ext"):
+        events.append(normalize_event(_build_ext_event_from_config(config["ext"])))
+
+
+def _capture_report_in_memory(events: list[dict[str, Any]]) -> dict[str, Any]:
+    state = build_state(events)
+    tags = build_tags(state)
+    busydawg = build_busydawg_projection(state, tags)
+    report = build_report_payload(state, tags, busydawg)
+    return {
+        "state": state,
+        "tags": tags,
+        "busydawg": busydawg,
+        "report": report,
+        "report_text": render_report_text(report),
+    }
+
+
+def build_showcase_story(story: str = "local-ext") -> dict[str, Any]:
     if story not in SHOWCASE_STORIES:
         raise ValueError(f"Unknown showcase story: {story}")
 
+    definition = SHOWCASE_STORIES[story]
+    events: list[dict[str, Any]] = []
+
+    phase_one_config = _load_json(definition["phase_one"]["scenario"])
+    _append_phase_events_in_memory(events, phase_one_config, tuple(definition["phase_one"]["include"]))
+    phase_one_snapshot = _capture_report_in_memory(list(events))
+
+    phase_two_config = _load_json(definition["phase_two"]["scenario"])
+    _append_phase_events_in_memory(events, phase_two_config, tuple(definition["phase_two"]["include"]))
+    phase_two_snapshot = _capture_report_in_memory(list(events))
+
+    return {
+        "status": "showcased",
+        "story": story,
+        "title": definition["title"],
+        "phases": [
+            {
+                "name": "phase_one",
+                "label": definition["phase_one"]["label"],
+                **phase_one_snapshot,
+            },
+            {
+                "name": "phase_two",
+                "label": definition["phase_two"]["label"],
+                **phase_two_snapshot,
+            },
+        ],
+        "takeaways": list(definition.get("takeaways", [])),
+    }
+
+
+def build_showcase_catalog() -> dict[str, Any]:
+    stories = [build_showcase_story(story) for story in ("local-ext", "registry-review", "lockdown-deny")]
+    return {
+        "status": "ok",
+        "count": len(stories),
+        "stories": stories,
+    }
+
+
+def run_showcase_demo(*, story: str = "local-ext", archive: bool = False) -> dict[str, Any]:
     definition = SHOWCASE_STORIES[story]
     reset_result = reset_alpha(archive=archive)
 

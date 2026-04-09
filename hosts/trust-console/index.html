@@ -142,6 +142,26 @@
       background: linear-gradient(180deg, rgba(168, 211, 127, 0.24), rgba(116, 224, 181, 0.1));
     }
 
+    .toolbar-link {
+      appearance: none;
+      border: 1px solid rgba(168, 211, 127, 0.3);
+      background: linear-gradient(180deg, rgba(168, 211, 127, 0.14), rgba(116, 224, 181, 0.05));
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 15px;
+      font: inherit;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .toolbar-link:hover {
+      border-color: rgba(168, 211, 127, 0.62);
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(168, 211, 127, 0.24), rgba(116, 224, 181, 0.1));
+    }
+
     .hero {
       position: relative;
       overflow: hidden;
@@ -548,6 +568,7 @@
       </div>
       <div class="toolbar-right">
         <div class="micro-pill" id="liveUpdateStatus">Polling /alpha/report</div>
+        <a class="toolbar-link" href="/alpha/showcase">Open Showcase</a>
         <button id="refreshBtn" type="button">Refresh Now</button>
       </div>
     </div>

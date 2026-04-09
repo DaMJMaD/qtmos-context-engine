@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QTMoS Showcase</title>
+  <style>
+    :root {
+      --bg-0: #07100e;
+      --bg-1: #0b1714;
+      --bg-2: #13221c;
+      --panel: rgba(18, 31, 27, 0.9);
+      --panel-strong: rgba(22, 37, 32, 0.97);
+      --line: rgba(133, 169, 151, 0.16);
+      --text: #edf6f1;
+      --muted: #96aba0;
+      --accent: #a8d37f;
+      --accent-2: #74e0b5;
+      --trusted: #42c98a;
+      --shifted: #f3b44b;
+      --suspicious: #ef6d6d;
+      --unknown: #758681;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+      --mono: "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", monospace;
+      --sans: "IBM Plex Sans", "DejaVu Sans", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: dark; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 10% 8%, rgba(116, 224, 181, 0.12), transparent 24%),
+        radial-gradient(circle at 90% 5%, rgba(168, 211, 127, 0.14), transparent 20%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-0) 50%, #050b09 100%);
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.78), transparent 90%);
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1700px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .toolbar,
+    .hero-top,
+    .story-head,
+    .phase-head,
+    .metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar {
+      margin-bottom: 18px;
+    }
+
+    .chip,
+    .pill,
+    .tone,
+    button {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .chip,
+    .pill {
+      padding: 8px 12px;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+    }
+
+    button {
+      appearance: none;
+      padding: 11px 15px;
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(168, 211, 127, 0.18), rgba(116, 224, 181, 0.06));
+      border-color: rgba(168, 211, 127, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    button:hover {
+      border-color: rgba(168, 211, 127, 0.55);
+    }
+
+    .hero {
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 18px;
+      padding: 24px;
+      border-radius: 28px;
+      border: 1px solid rgba(168, 211, 127, 0.14);
+      background:
+        linear-gradient(135deg, rgba(168, 211, 127, 0.08), rgba(116, 224, 181, 0.06) 28%, rgba(255,255,255,0.015) 72%),
+        var(--panel-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -14% -65% 38%;
+      height: 280px;
+      background: radial-gradient(circle, rgba(116, 224, 181, 0.18), transparent 70%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      max-width: 900px;
+    }
+
+    .summary {
+      max-width: 980px;
+      margin-top: 10px;
+      color: var(--text);
+      font-size: clamp(1rem, 1.4vw, 1.16rem);
+      line-height: 1.46;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .hero-card,
+    .story-card,
+    .phase-card {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.028);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      min-height: 92px;
+      border-radius: 18px;
+      padding: 14px 15px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .hero-card .label,
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .hero-card .value {
+      font-weight: 700;
+      font-size: 1.08rem;
+      word-break: break-word;
+    }
+
+    .hero-card .subvalue {
+      color: var(--muted);
+      font-size: 0.92rem;
+      word-break: break-word;
+    }
+
+    .stories {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .story-card {
+      border-radius: 24px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.032), rgba(255,255,255,0.018));
+      display: grid;
+      gap: 16px;
+    }
+
+    .story-title {
+      font-size: 1.18rem;
+      line-height: 1.25;
+      max-width: 26ch;
+    }
+
+    .story-summary {
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+
+    .takeaways {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .takeaways li {
+      padding-left: 15px;
+      position: relative;
+      color: var(--text);
+      line-height: 1.42;
+      font-size: 0.95rem;
+    }
+
+    .takeaways li::before {
+      content: "";
+      position: absolute;
+      top: 0.56em;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(168, 211, 127, 0.12);
+    }
+
+    .phase-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .phase-card {
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      background: rgba(255,255,255,0.022);
+    }
+
+    .phase-title {
+      font-size: 0.98rem;
+      line-height: 1.35;
+      max-width: 34ch;
+    }
+
+    .tone {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #04120c;
+      background: var(--unknown);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .tone::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(4, 18, 12, 0.55);
+    }
+
+    .tone.trusted { background: var(--trusted); }
+    .tone.shifted { background: var(--shifted); }
+    .tone.suspicious { background: var(--suspicious); color: #fff6f6; }
+    .tone.suspicious::before,
+    .tone.unknown::before { background: rgba(255,255,255,0.7); }
+    .tone.unknown { background: var(--unknown); color: #edf6f1; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 10px 11px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      display: grid;
+      gap: 4px;
+    }
+
+    .metric-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .report-box {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(6, 11, 9, 0.56);
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.56;
+      color: #d9ebe1;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.48;
+    }
+
+    .error {
+      color: #fff1f1;
+      background: rgba(239, 109, 109, 0.14);
+      border-color: rgba(239, 109, 109, 0.28);
+    }
+
+    @media (max-width: 1380px) {
+      .stories { grid-template-columns: 1fr; }
+      .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 18px 14px 28px; }
+      .hero { padding: 18px; }
+      .hero-grid,
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="toolbar">
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <div class="chip">QTMoS Showcase</div>
+        <div class="chip" id="showcaseStatus">Loading stories</div>
+      </div>
+      <button id="refreshButton" type="button">Refresh Showcase</button>
+    </div>
+
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="kicker">Three Public Demo Stories</div>
+          <h1>Visual + Text Showcase For Real People Evaluating QTMoS</h1>
+          <p class="summary">
+            This page renders all three Alpha showcase stories side-by-side from in-memory scenario data, so visitors can see the
+            trust and policy model without mutating the live runtime bus. Each story shows the same thing two ways:
+            visual summary cards for fast scanning, and raw report text for people who want the exact words.
+          </p>
+        </div>
+        <div style="display:grid; gap:10px; justify-items:end;">
+          <div class="tone unknown" id="heroTone">SHOWCASE</div>
+          <div class="chip">/alpha/showcase</div>
+        </div>
+      </div>
+      <div class="hero-grid">
+        <div class="hero-card">
+          <div class="label">Stories</div>
+          <div class="value" id="storyCount">0</div>
+          <div class="subvalue">parallel showcase narratives</div>
+        </div>
+        <div class="hero-card">
+          <div class="label">Formats</div>
+          <div class="value">GUI + Text</div>
+          <div class="subvalue">screenshot-friendly and auditable</div>
+        </div>
+        <div class="hero-card">
+          <div class="label">Best First Story</div>
+          <div class="value">local-ext</div>
+          <div class="subvalue">QTF review first, EXT allow second</div>
+        </div>
+        <div class="hero-card">
+          <div class="label">Endpoint</div>
+          <div class="value mono">/alpha/showcase.json</div>
+          <div class="subvalue">non-destructive in-memory payload</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stories" id="stories"></section>
+    <p class="footer-note">
+      Use this page for screenshots, quick evaluator walkthroughs, or side-by-side teaching. The live runtime console still lives at
+      <span class="mono">/alpha/console</span>.
+    </p>
+  </div>
+
+  <template id="storyTemplate">
+    <article class="story-card">
+      <div class="story-head">
+        <div>
+          <div class="chip story-id">story</div>
+          <h2 class="story-title">Story title</h2>
+        </div>
+        <div class="pill phase-count">2 phases</div>
+      </div>
+      <p class="story-summary">Story summary.</p>
+      <div class="phase-stack"></div>
+      <div>
+        <div class="chip" style="margin-bottom:10px;">What This Shows</div>
+        <ul class="takeaways"></ul>
+      </div>
+    </article>
+  </template>
+
+  <template id="phaseTemplate">
+    <section class="phase-card">
+      <div class="phase-head">
+        <h3 class="phase-title">Phase label</h3>
+        <div class="tone unknown">POLICY</div>
+      </div>
+      <div class="metric-grid"></div>
+      <div class="report-box">
+        <pre></pre>
+      </div>
+    </section>
+  </template>
+
+  <script>
+    const storiesRoot = document.getElementById("stories");
+    const storyTemplate = document.getElementById("storyTemplate");
+    const phaseTemplate = document.getElementById("phaseTemplate");
+    const showcaseStatus = document.getElementById("showcaseStatus");
+    const storyCount = document.getElementById("storyCount");
+    const refreshButton = document.getElementById("refreshButton");
+
+    function toneClass(value) {
+      const text = String(value || "").toLowerCase();
+      if (["allow", "trusted", "success"].includes(text)) return "trusted";
+      if (["review", "warn", "shifted", "requested"].includes(text)) return "shifted";
+      if (["deny", "quarantine", "failed", "suspicious"].includes(text)) return "suspicious";
+      return "unknown";
+    }
+
+    function metricsForPhase(phase) {
+      const report = phase.report || {};
+      const policy = report.policy || {};
+      const pkg = report.active_package_install || {};
+      const qtf = report.active_qtf_execution || {};
+      const ext = report.active_ext_promotion || {};
+      const host = report.active_host_session || {};
+      return [
+        ["Policy", `${String(policy.action || "unknown").toUpperCase()} (${policy.policy_rule || "n/a"})`],
+        ["Package", pkg.package_name ? `${pkg.manager || "pkg"} ${pkg.package_name}` : "none"],
+        ["QTF", qtf.label ? `${qtf.success ? "success" : "failed"} via ${qtf.backend || "none"}` : "none"],
+        ["EXT", ext.result ? `${ext.result} -> ${ext.target || "n/a"}` : "none"],
+        ["Host", host.stage ? `${host.stage}${host.compromise_suspected ? " [suspected]" : ""}` : "none"],
+        ["Trust", String(report.overall_status || "unknown").toUpperCase()],
+      ];
+    }
+
+    function renderStories(payload) {
+      storiesRoot.innerHTML = "";
+      const stories = payload.stories || [];
+      storyCount.textContent = stories.length;
+      showcaseStatus.textContent = `Loaded ${stories.length} stories`;
+
+      for (const story of stories) {
+        const node = storyTemplate.content.firstElementChild.cloneNode(true);
+        node.querySelector(".story-id").textContent = story.story || "story";
+        node.querySelector(".story-title").textContent = story.title || "Untitled story";
+        node.querySelector(".story-summary").textContent =
+          (story.takeaways && story.takeaways[0]) || "A showcase story.";
+        node.querySelector(".phase-count").textContent = `${(story.phases || []).length} phases`;
+
+        const phaseStack = node.querySelector(".phase-stack");
+        for (const phase of story.phases || []) {
+          const phaseNode = phaseTemplate.content.firstElementChild.cloneNode(true);
+          const policyAction = phase.report?.policy?.action || "unknown";
+          const toneNode = phaseNode.querySelector(".tone");
+          toneNode.textContent = `${String(policyAction).toUpperCase()} POLICY`;
+          toneNode.className = `tone ${toneClass(policyAction)}`;
+          phaseNode.querySelector(".phase-title").textContent = phase.label || phase.name || "Phase";
+
+          const metricGrid = phaseNode.querySelector(".metric-grid");
+          for (const [label, value] of metricsForPhase(phase)) {
+            const metric = document.createElement("div");
+            metric.className = "metric";
+            metric.innerHTML = `
+              <div class="metric-label">${label}</div>
+              <div class="metric-value">${value}</div>
+            `;
+            metricGrid.appendChild(metric);
+          }
+
+          phaseNode.querySelector("pre").textContent = phase.report_text || "";
+          phaseStack.appendChild(phaseNode);
+        }
+
+        const takeaways = node.querySelector(".takeaways");
+        for (const item of story.takeaways || []) {
+          const li = document.createElement("li");
+          li.textContent = item;
+          takeaways.appendChild(li);
+        }
+
+        storiesRoot.appendChild(node);
+      }
+    }
+
+    function renderError(message) {
+      storiesRoot.innerHTML = `
+        <article class="story-card error">
+          <h2>Showcase Error</h2>
+          <p class="story-summary">${message}</p>
+        </article>
+      `;
+      showcaseStatus.textContent = "Showcase offline";
+    }
+
+    async function loadShowcase() {
+      try {
+        showcaseStatus.textContent = "Refreshing showcase";
+        const response = await fetch("/alpha/showcase.json", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const payload = await response.json();
+        renderStories(payload);
+      } catch (error) {
+        renderError(String(error));
+      }
+    }
+
+    refreshButton.addEventListener("click", () => {
+      loadShowcase();
+    });
+
+    loadShowcase();
+  </script>
+</body>
+</html>

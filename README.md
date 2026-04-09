@@ -120,6 +120,9 @@ python3 -m bridges.alpha.cli serve-http
 Then open:
 
 - `http://127.0.0.1:8765/alpha/console`
+- `http://127.0.0.1:8765/alpha/showcase`
+
+Use `/alpha/showcase` when you want all three demo stories rendered side-by-side in a visual + text layout for screenshots, walkthroughs, or quick evaluation.
 
 Print a human-readable trust summary:
 

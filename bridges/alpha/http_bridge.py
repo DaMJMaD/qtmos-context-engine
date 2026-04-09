@@ -10,6 +10,7 @@ from .ahk_policy_bridge import publish_ahk_policy_hook
 from .models import dump_json
 from .paths import PROJECT_ROOT
 from .reporting import build_report_payload, load_report_payload
+from .showcase import build_showcase_catalog
 from .surface import append_surface_and_cycle, load_previous_surface
 from .web import append_web_and_cycle, load_previous_web
 
@@ -47,6 +48,12 @@ class QTMoSBridgeHandler(BaseHTTPRequestHandler):
         clean_path = self.path.split("?", 1)[0]
         if clean_path in {"/alpha/report", "/alpha/report.json"}:
             _json_response(self, HTTPStatus.OK, load_report_payload())
+            return
+        if clean_path in {"/alpha/showcase.json"}:
+            _json_response(self, HTTPStatus.OK, build_showcase_catalog())
+            return
+        if clean_path in {"/alpha/showcase", "/alpha/showcase/"}:
+            _file_response(self, HTTPStatus.OK, "hosts/trust-console/showcase.html")
             return
         if clean_path in {"/", "/index.html", "/alpha", "/alpha/", "/alpha/console", "/alpha/console/"}:
             _file_response(self, HTTPStatus.OK, "hosts/trust-console/index.html")
