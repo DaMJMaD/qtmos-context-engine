@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import shlex
 import subprocess
 import tempfile
 import time
@@ -11,26 +13,30 @@ from .models import now_iso
 from .paths import PROJECT_ROOT, SPAWN_STATE_JSON, STATE_DIR
 
 
+DEFAULT_MODEL_PROFILE = "balanced"
+MODEL_PROFILES = ["balanced", "fast"]
+
+
 LANE_CATALOG: list[dict[str, Any]] = [
     {
-        "id": "codex_local",
-        "label": "Codex 5.4",
+        "id": "local_runtime",
+        "label": "Local Runtime",
         "kind": "local",
-        "provider": "codex",
-        "default_model": "gpt-5.4",
-        "model_options": ["gpt-5.4", "gpt-5.4-mini"],
-        "tagline": "Local Codex lane for direct repo-aware execution.",
-        "copy_hint": "Automated locally through codex exec.",
+        "provider": "local",
+        "default_model": DEFAULT_MODEL_PROFILE,
+        "model_options": MODEL_PROFILES,
+        "tagline": "Local execution lane for direct repo-aware work.",
+        "copy_hint": "Automated locally through your configured runtime command.",
     },
     {
-        "id": "web_gpt",
-        "label": "Web GPT",
+        "id": "browser_witness",
+        "label": "Browser Witness",
         "kind": "manual",
         "provider": "manual",
         "default_model": "manual",
         "model_options": ["manual"],
-        "tagline": "Paste browser-chat output here after running the generated prompt.",
-        "copy_hint": "Copy the generated prompt into your browser chat, then paste the reply back here.",
+        "tagline": "Paste browser-side output here after running the generated prompt.",
+        "copy_hint": "Copy the generated prompt into your browser model, then paste the reply back here.",
     },
 ]
 
@@ -42,7 +48,7 @@ RUBRIC: list[dict[str, str]] = [
 ]
 
 JUDGE_OPTIONS: list[dict[str, Any]] = [
-    {"provider": "codex", "label": "Codex Judge", "model_options": ["gpt-5.4", "gpt-5.4-mini"]},
+    {"provider": "local", "label": "Local Judge", "model_options": MODEL_PROFILES},
 ]
 
 
@@ -83,8 +89,8 @@ def default_spawn_workspace() -> dict[str, Any]:
         "focus": "Duality spark -> cross-exam -> total foldback",
         "lanes": _lane_defaults(),
         "judge": {
-            "provider": "codex",
-            "model": "gpt-5.4",
+            "provider": "local",
+            "model": DEFAULT_MODEL_PROFILE,
             "prompt": "",
             "response": "",
             "status": "idle",
@@ -193,28 +199,48 @@ def build_spawn_payload() -> dict[str, Any]:
     }
 
 
-def _run_codex(prompt: str, model: str) -> dict[str, Any]:
+def _resolve_local_model(profile: str) -> str:
+    normalized = (profile or DEFAULT_MODEL_PROFILE).strip().lower() or DEFAULT_MODEL_PROFILE
+    if normalized == "fast":
+        return os.environ.get("QTMOS_SPAWN_MODEL_FAST", "fast")
+    return os.environ.get("QTMOS_SPAWN_MODEL_BALANCED", "balanced")
+
+
+def _run_local_runtime(prompt: str, model: str) -> dict[str, Any]:
+    configured_command = os.environ.get("QTMOS_SPAWN_LOCAL_COMMAND", "").strip()
+    if not configured_command:
+        return {
+            "ok": False,
+            "provider": "local",
+            "model": model or DEFAULT_MODEL_PROFILE,
+            "prompt": prompt,
+            "response": "",
+            "stdout": "",
+            "stderr": "Set QTMOS_SPAWN_LOCAL_COMMAND to automate the local lane.",
+            "returncode": 1,
+            "duration_ms": 0,
+            "ts": now_iso(),
+        }
+
     output_path = None
+    prompt_path = None
     started = time.monotonic()
     try:
-        with tempfile.NamedTemporaryFile(prefix="spawn-codex-", suffix=".txt", delete=False) as handle:
+        with tempfile.NamedTemporaryFile(prefix="spawn-local-output-", suffix=".txt", delete=False) as handle:
             output_path = Path(handle.name)
+        with tempfile.NamedTemporaryFile(prefix="spawn-local-prompt-", suffix=".txt", mode="w", encoding="utf-8", delete=False) as handle:
+            handle.write(prompt)
+            prompt_path = Path(handle.name)
 
-        command = [
-            "codex",
-            "exec",
-            "-C",
-            str(PROJECT_ROOT),
-            "--sandbox",
-            "danger-full-access",
-            "--color",
-            "never",
-            "-m",
-            model or "gpt-5.4",
-            "-o",
-            str(output_path),
-            prompt,
-        ]
+        resolved_model = _resolve_local_model(model)
+        command = shlex.split(
+            configured_command.format(
+                project_root=str(PROJECT_ROOT),
+                model=resolved_model,
+                output_path=str(output_path),
+                prompt_path=str(prompt_path),
+            )
+        )
 
         completed = subprocess.run(
             command,
@@ -228,8 +254,8 @@ def _run_codex(prompt: str, model: str) -> dict[str, Any]:
         response = output_path.read_text(encoding="utf-8").strip() if output_path.exists() else ""
         return {
             "ok": completed.returncode == 0 and bool(response),
-            "provider": "codex",
-            "model": model or "gpt-5.4",
+            "provider": "local",
+            "model": model or DEFAULT_MODEL_PROFILE,
             "prompt": prompt,
             "response": response,
             "stdout": completed.stdout if completed.returncode != 0 else "",
@@ -242,6 +268,11 @@ def _run_codex(prompt: str, model: str) -> dict[str, Any]:
         if output_path and output_path.exists():
             try:
                 output_path.unlink()
+            except OSError:
+                pass
+        if prompt_path and prompt_path.exists():
+            try:
+                prompt_path.unlink()
             except OSError:
                 pass
 
@@ -262,8 +293,8 @@ def invoke_spawn_provider(*, provider: str, prompt: str, model: str = "") -> dic
             "ts": now_iso(),
         }
 
-    if provider == "codex":
-        return _run_codex(prompt, model)
+    if provider == "local":
+        return _run_local_runtime(prompt, model)
 
     return {
         "ok": False,

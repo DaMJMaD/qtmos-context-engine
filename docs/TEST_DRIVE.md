@@ -80,7 +80,7 @@ This is the fastest way to see how QTMoS wants to explain itself to a person ins
 
 Use `/alpha/showcase` when you want all three built-in showcase stories rendered side-by-side with both summary cards and raw report text for screenshots or teaching.
 
-Use `/alpha/spawn` when you want a multi-lane prompt room: one shared question, an automated local Codex lane, manual browser lanes, generated cross-exam prompts, and a final foldback verdict.
+Use `/alpha/spawn` when you want a multi-lane prompt room: one shared question, an automated local lane, manual browser lanes, generated cross-exam prompts, and a final foldback verdict.
 
 If you want that room to open like a Linux app:
 

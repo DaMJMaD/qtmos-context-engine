@@ -138,7 +138,7 @@ Hosts are replaceable views and emitters.
 
 Examples:
 
-- Codex pane
+- operator pane
 - terminal shell
 - AHK HUD overlay
 - AHK spy bridge
